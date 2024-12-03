@@ -1,0 +1,4 @@
+apache-airflow
+mysql-connector-python
+pytest
+requests

@@ -1,5 +1,6 @@
 apache-airflow
 python-dotenv
 mysql-connector-python
+pydantic
 pytest
 requests

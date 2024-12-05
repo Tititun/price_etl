@@ -3,6 +3,10 @@ This file contains common objects which can be used by many scrapers
 """
 
 import logging
+from typing import Optional
+
+from pydantic.dataclasses import dataclass
+
 
 # headers to use in requests
 headers = {
@@ -15,3 +19,16 @@ log_args = {
     'format': '%(levelname)s %(filename)s %(asctime)s: %(message)s',
     'datefmt': '%Y-%m-%d %H:%M:%S',
 }
+
+
+@dataclass
+class Category:
+    """
+    this class is used to validate category data which
+    is collected by scrapers.
+    It is also used when fetching the data from the database.
+    """
+    supermarket_id: Optional[int]
+    category_id: Optional[int]
+    inner_code: str
+    name: str

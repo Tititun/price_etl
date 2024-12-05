@@ -1,0 +1,56 @@
+[
+    {
+        "id": "73C20453",
+        "name": "Новый Год",
+        "advert": null,
+        "products_count": 533,
+        "image_link": "https://photos.okolo.app/category/73C20453-icon-fivedelivery_dd7d0fb1c0b4e1ee68217afe38aca035/345x345.png",
+        "gradient_start": "#D61515",
+        "gradient_end": "#C60C0C",
+        "title_color": "#FFFFFF",
+        "description": null,
+        "description_md": null,
+        "description_html": null,
+        "subcategories": [
+            {
+                "id": "73C20455",
+                "name": "Готовим оливье",
+                "advert": null,
+                "products_count": 56
+            },
+            {
+                "id": "73C20456",
+                "name": "Запекаем в духовке",
+                "advert": null,
+                "products_count": 11
+            }
+        ]
+    },
+    {
+        "id": "73C2338",
+        "name": "Готовая еда",
+        "advert": null,
+        "products_count": 82,
+        "image_link": "https://photos.okolo.app/category/73C2338-icon-fivedelivery/345x345.png",
+        "gradient_start": "#85E7B8",
+        "gradient_end": "#63B17E",
+        "title_color": "#FFFFFF",
+        "description": null,
+        "description_md": null,
+        "description_html": null,
+        "subcategories": [
+            {
+                "id": "73C10301",
+                "name": "Горячие напитки",
+                "advert": null,
+                "products_count": 6
+            },
+            {
+                "id": "73C9714",
+                "name": "Блинчики, сырники и каши",
+                "advert": null,
+                "products_count": 7
+            }
+        ]
+    }
+]

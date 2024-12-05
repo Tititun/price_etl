@@ -5,7 +5,7 @@ This file contains common objects which can be used by many scrapers
 import logging
 from typing import Optional
 
-from pydantic.dataclasses import dataclass
+from pydantic import BaseModel
 
 
 # headers to use in requests
@@ -21,8 +21,7 @@ log_args = {
 }
 
 
-@dataclass
-class Category:
+class Category(BaseModel):
     """
     this class is used to validate category data which
     is collected by scrapers.

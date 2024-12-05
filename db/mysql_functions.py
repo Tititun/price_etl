@@ -23,7 +23,7 @@ def mysql_connect() -> MySQLConnectionAbstract:
     return connection
 
 
-def fetch_supermarket_id(conn: MySQLConnectionAbstract, name: str)\
+def fetch_supermarket_id(connection: MySQLConnectionAbstract, name: str)\
         -> Optional[int]:
     """
     fetches a supermarket's id by its name from the database

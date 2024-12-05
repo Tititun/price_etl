@@ -9,7 +9,8 @@ import mysql.connector
 import pytest
 
 from db.mysql_functions import (fetch_supermarket_categories,
-                                fetch_supermarket_id)
+                                fetch_supermarket_id,
+                                upsert_categories)
 from scrapers.common import Category
 
 load_dotenv()
@@ -23,7 +24,7 @@ setup_queries = [
     'VALUES '
     '(NULL, 1, "test_id_1", "First Category"),'
     '(NULL, 1, "test_id_2", "Second Category"),'
-    '(NULL, 2, "test_id_2", "Third Category");'
+    '(NULL, 2, "test_id_3", "Third Category");'
 ]
 
 
@@ -85,3 +86,60 @@ def test_fetch_supermarket_categories(db_connection):
                  inner_code='test_id_2', name='Second Category'),
     ]
     assert result == expected
+
+
+def test_upsert_categories_new_categories(db_connection):
+    """
+    test if new categories are inserted successfully
+    """
+    categories_to_insert = [
+        Category(
+            supermarket_id=None, category_id=None,
+            inner_code='test_id_4', name='Fourth Category'),
+        Category(
+            supermarket_id=None, category_id=None,
+            inner_code='test_id_5', name='Fifth Category'),
+    ]
+    expected_result = [
+        Category(
+            supermarket_id=2, category_id=3,
+            inner_code='test_id_3', name='Third Category'),
+        Category(
+            supermarket_id=2, category_id=4,
+            inner_code='test_id_4', name='Fourth Category'),
+        Category(
+            supermarket_id=2, category_id=5,
+            inner_code='test_id_5', name='Fifth Category'),
+    ]
+    supermarket = "Second Supermarket"
+    upsert_categories(db_connection, categories_to_insert,
+                      supermarket=supermarket)
+    categories = fetch_supermarket_categories(db_connection, supermarket)
+    assert categories == expected_result
+
+
+def test_upsert_categories_no_duplicates(db_connection):
+    """
+    test that categories with duplicate inner_code are not inserted
+    """
+    categories_to_insert = [
+        Category(
+            supermarket_id=None, category_id=None,
+            inner_code='test_id_3', name='Third Category Different'),
+        Category(
+            supermarket_id=None, category_id=None,
+            inner_code='test_id_4', name='Fourth Category'),
+    ]
+    expected_result = [
+        Category(
+            supermarket_id=2, category_id=3,
+            inner_code='test_id_3', name='Third Category'),
+        Category(
+            supermarket_id=2, category_id=4,
+            inner_code='test_id_4', name='Fourth Category'),
+    ]
+    supermarket = "Second Supermarket"
+    upsert_categories(db_connection, categories_to_insert,
+                      supermarket=supermarket)
+    categories = fetch_supermarket_categories(db_connection, supermarket)
+    assert categories == expected_result

@@ -60,6 +60,33 @@ def fetch_supermarket_categories(
         return [Category(**res) for res in cur.fetchall()]
 
 
+def upsert_categories(
+    connection: MySQLConnectionAbstract,
+    categories: list[Category],
+    supermarket: str,
+) -> None:
+    """
+    upserts new categories into the table.
+    new values are inserted, existent records remain untouched (no duplicates)
+    :param connection:  MySQL connection
+    :param categories: list of Category objects
+    :param supermarket: name of the supermarket
+    """
+    supermarket_id = fetch_supermarket_id(connection, name=supermarket)
+    for category in categories:
+        category.supermarket_id = supermarket_id
+
+    with connection.cursor() as cursor:
+        cursor.executemany(
+            'INSERT IGNORE INTO categories '
+            '(supermarket_id, category_id, inner_code, name) VALUES'
+            '(%(supermarket_id)s, %(category_id)s, %(inner_code)s, %(name)s);',
+           [category.model_dump() for category in categories]
+        )
+        connection.commit()
+    return
+
+
 if __name__ == '__main__':
     connection = mysql_connect()
     print(fetch_supermarket_id(connection, 'Пятёрочка'))

@@ -8,9 +8,23 @@ from dotenv import load_dotenv
 import mysql.connector
 import pytest
 
-from db.mysql_functions import fetch_supermarket_id
+from db.mysql_functions import (fetch_supermarket_categories,
+                                fetch_supermarket_id)
+from scrapers.common import Category
 
 load_dotenv()
+
+# SQL queries to execute during the setup in db_connection fixture
+setup_queries = [
+    'INSERT INTO supermarkets VALUES (1, "First Supermarket"),'
+    ' (2, "Second Supermarket");',
+
+    'INSERT INTO categories (category_id, supermarket_id, inner_code, name) '
+    'VALUES '
+    '(NULL, 1, "test_id_1", "First Category"),'
+    '(NULL, 1, "test_id_2", "Second Category"),'
+    '(NULL, 2, "test_id_2", "Third Category");'
+]
 
 
 @pytest.fixture
@@ -33,7 +47,9 @@ def db_connection():
         for statement in statements:
             cursor.execute(statement)
             connection.commit()
-    cursor.execute('INSERT INTO supermarkets VALUES (1, "First Supermarket");')
+    for query in setup_queries:
+        cursor.execute(query)
+        connection.commit()
     yield connection
     cursor.execute('DROP TABLE IF EXISTS supermarkets, categories;')
     connection.commit()
@@ -54,3 +70,18 @@ def test_fetch_supermarket_id_fetches_none(db_connection):
     """
     result = fetch_supermarket_id(db_connection, 'Imaginary Supermarket')
     assert result is None
+
+
+def test_fetch_supermarket_categories(db_connection):
+    """
+    test if fetch_supermarket_categories returns a list of expected Category
+    objects
+    """
+    result = fetch_supermarket_categories(db_connection, 'First Supermarket')
+    expected = [
+        Category(supermarket_id=1, category_id=1,
+                 inner_code='test_id_1', name='First Category'),
+        Category(supermarket_id=1, category_id=2,
+                 inner_code='test_id_2', name='Second Category'),
+    ]
+    assert result == expected

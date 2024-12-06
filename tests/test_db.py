@@ -52,7 +52,8 @@ def db_connection():
         cursor.execute(query)
         connection.commit()
     yield connection
-    cursor.execute('DROP TABLE IF EXISTS supermarkets, categories;')
+    cursor.execute('DROP TABLE IF EXISTS'
+                   ' supermarkets, categories, products, product_info;')
     connection.commit()
     cursor.close()
     connection.close()

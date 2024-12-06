@@ -58,8 +58,6 @@ def main():
                      f' failed with status code {response.status_code}')
         return
 
-    with open('example.json', 'w') as f:
-        json.dump(response.json()[:2], f, ensure_ascii=False, indent=4)
     categories = parse_categories(response.json())
     if not categories:
         logger.error('No categories have been fetched/parsed.')

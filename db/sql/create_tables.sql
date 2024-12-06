@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 
-CREATE TABLE product_info (
+CREATE TABLE IF NOT EXISTS product_info (
     product_id INTEGER NOT NULL,
     observed_on DATE DEFAULT (CURRENT_DATE),
     price DECIMAL(8, 2),

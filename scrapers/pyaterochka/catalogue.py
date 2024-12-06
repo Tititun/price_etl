@@ -5,7 +5,6 @@ https://5d.5ka.ru/api/catalog/v1/stores/E703/categories
 The store id is E703, which has a location:
 Россия, Томск, проспект Кирова 68
 """
-import json
 import logging
 
 import requests

@@ -37,7 +37,7 @@ class ProductInfo(BaseModel):
     """
     this class represents product info which is associated with a product
     """
-    product_id: int
+    product_id: Optional[int]
     observed_on: datetime.date
     price: Optional[Decimal]
     discounted_price: Optional[Decimal]
@@ -50,7 +50,9 @@ class Product(BaseModel):
     """
     this class represents a product
     """
-    product_id: int
+    product_id: Optional[int]
     category_id: int
+    inner_code: str
     name: str
     created_on: datetime.date
+    product_info: Optional[ProductInfo] = None

@@ -16,10 +16,12 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS products (
 	product_id INTEGER AUTO_INCREMENT PRIMARY KEY,
     category_id INTEGER NOT NULL,
+    inner_code VARCHAR(30) NOT NULL,
     name VARCHAR(200) NOT NULL,
     created_on DATE DEFAULT (CURRENT_DATE),
     FOREIGN KEY product_category (category_id) REFERENCES categories (category_id)
-    ON DELETE CASCADE ON UPDATE CASCADE
+    ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT category_product_unique UNIQUE (category_id, inner_code)
 );
 
 

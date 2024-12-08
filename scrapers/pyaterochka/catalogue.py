@@ -1,9 +1,7 @@
 """
 This module scrapes the catalogue from
 https://5d.5ka.ru/api/catalog/v1/stores/E703/categories
-
-The store id is E703, which has a location:
-Россия, Томск, проспект Кирова 68
+Supermarket location is defined by SUPERMARKET_CODE constant
 """
 import logging
 
@@ -11,7 +9,7 @@ import requests
 
 from db.mysql_functions import mysql_connect, upsert_categories
 from scrapers.common import Category, headers, log_args
-from scrapers.pyaterochka.common import SUPERMARKET
+from scrapers.pyaterochka.common import SUPERMARKET_NAME, SUPERMARKET_CODE
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(**log_args, level=logging.DEBUG)
@@ -48,7 +46,8 @@ def main():
     :return: None
     """
     response = requests.get(
-        'https://5d.5ka.ru/api/catalog/v1/stores/E703/categories',
+        f'https://5d.5ka.ru/api/catalog/v1/stores/'
+        f'{SUPERMARKET_CODE}/categories',
         params=params,
         headers=headers,
     )
@@ -63,7 +62,7 @@ def main():
         return
 
     with mysql_connect() as conn:
-        upsert_categories(conn, categories, supermarket=SUPERMARKET)
+        upsert_categories(conn, categories, supermarket=SUPERMARKET_NAME)
 
 
 if __name__ == '__main__':

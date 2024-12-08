@@ -20,11 +20,11 @@ setup_queries = [
     'INSERT INTO supermarkets VALUES (1, "First Supermarket"),'
     ' (2, "Second Supermarket");',
 
-    'INSERT INTO categories (category_id, supermarket_id, inner_code, name) '
+    'INSERT INTO categories (supermarket_id, inner_code, name) '
     'VALUES '
-    '(NULL, 1, "test_id_1", "First Category"),'
-    '(NULL, 1, "test_id_2", "Second Category"),'
-    '(NULL, 2, "test_id_3", "Third Category");'
+    '(1, "test_id_1", "First Category"),'
+    '(1, "test_id_2", "Second Category"),'
+    '(2, "test_id_3", "Third Category");'
 ]
 
 
@@ -81,10 +81,10 @@ def test_fetch_supermarket_categories(db_connection):
     """
     result = fetch_supermarket_categories(db_connection, 'First Supermarket')
     expected = [
-        Category(supermarket_id=1, category_id=1,
-                 inner_code='test_id_1', name='First Category'),
-        Category(supermarket_id=1, category_id=2,
-                 inner_code='test_id_2', name='Second Category'),
+        Category(supermarket_id=1, inner_code='test_id_1',
+                 name='First Category'),
+        Category(supermarket_id=1, inner_code='test_id_2',
+                 name='Second Category'),
     ]
     assert result == expected
 
@@ -95,22 +95,22 @@ def test_upsert_categories_new_categories(db_connection):
     """
     categories_to_insert = [
         Category(
-            supermarket_id=None, category_id=None,
-            inner_code='test_id_4', name='Fourth Category'),
+            supermarket_id=None, inner_code='test_id_4',
+            name='Fourth Category'),
         Category(
-            supermarket_id=None, category_id=None,
-            inner_code='test_id_5', name='Fifth Category'),
+            supermarket_id=None, inner_code='test_id_5',
+            name='Fifth Category'),
     ]
     expected_result = [
         Category(
-            supermarket_id=2, category_id=3,
-            inner_code='test_id_3', name='Third Category'),
+            supermarket_id=2, inner_code='test_id_3',
+            name='Third Category'),
         Category(
-            supermarket_id=2, category_id=4,
-            inner_code='test_id_4', name='Fourth Category'),
+            supermarket_id=2, inner_code='test_id_4',
+            name='Fourth Category'),
         Category(
-            supermarket_id=2, category_id=5,
-            inner_code='test_id_5', name='Fifth Category'),
+            supermarket_id=2, inner_code='test_id_5',
+            name='Fifth Category'),
     ]
     supermarket = "Second Supermarket"
     upsert_categories(db_connection, categories_to_insert,
@@ -125,19 +125,19 @@ def test_upsert_categories_no_duplicates(db_connection):
     """
     categories_to_insert = [
         Category(
-            supermarket_id=None, category_id=None,
-            inner_code='test_id_3', name='Third Category Different'),
+            supermarket_id=None, inner_code='test_id_3',
+            name='Third Category Different'),
         Category(
-            supermarket_id=None, category_id=None,
-            inner_code='test_id_4', name='Fourth Category'),
+            supermarket_id=None, inner_code='test_id_4',
+            name='Fourth Category'),
     ]
     expected_result = [
         Category(
-            supermarket_id=2, category_id=3,
-            inner_code='test_id_3', name='Third Category'),
+            supermarket_id=2, inner_code='test_id_3',
+            name='Third Category'),
         Category(
-            supermarket_id=2, category_id=4,
-            inner_code='test_id_4', name='Fourth Category'),
+            supermarket_id=2, inner_code='test_id_4',
+            name='Fourth Category'),
     ]
     supermarket = "Second Supermarket"
     upsert_categories(db_connection, categories_to_insert,

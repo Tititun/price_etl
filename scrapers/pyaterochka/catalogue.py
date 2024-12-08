@@ -33,8 +33,7 @@ def parse_categories(json_data: dict) -> list[Category]:
     for top_category in json_data:
         for subcategory in top_category['subcategories']:
             result_data.append(Category(supermarket_id=None,
-                                        category_id=None,
-                                        inner_code=subcategory['id'],
+                                        category_id=subcategory['id'],
                                         name=subcategory['name']))
     return result_data
 

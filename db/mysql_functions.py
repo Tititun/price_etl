@@ -52,7 +52,7 @@ def fetch_supermarket_categories(
     """
     with connection.cursor(dictionary=True) as cur:
         cur.execute(
-            'SELECT supermarket_id, inner_code, c.name AS name'
+            'SELECT supermarket_id, category_id, c.name AS name'
             ' FROM categories c JOIN supermarkets s USING (supermarket_id)'
             ' WHERE s.name=%s',
             (name,)
@@ -79,8 +79,8 @@ def upsert_categories(
     with connection.cursor() as cursor:
         cursor.executemany(
             'INSERT IGNORE INTO categories '
-            '(supermarket_id, inner_code, name) VALUES'
-            '(%(supermarket_id)s, %(inner_code)s, %(name)s);',
+            '(supermarket_id, category_id, name) VALUES'
+            '(%(supermarket_id)s, %(category_id)s, %(name)s);',
            [category.model_dump() for category in categories]
         )
         connection.commit()

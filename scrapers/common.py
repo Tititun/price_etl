@@ -28,8 +28,7 @@ class Category(BaseModel):
     is collected by scrapers.
     """
     supermarket_id: Optional[int]
-    category_id: Optional[int]
-    inner_code: str
+    category_id: str
     name: str
 
 
@@ -37,7 +36,7 @@ class ProductInfo(BaseModel):
     """
     this class represents product info which is associated with a product
     """
-    product_id: Optional[int]
+    product_id: str
     observed_on: datetime.date
     price: Optional[Decimal]
     discounted_price: Optional[Decimal]
@@ -50,9 +49,9 @@ class Product(BaseModel):
     """
     this class represents a product
     """
-    product_id: Optional[int]
+    product_id: str
+    supermarket_id: int
     category_id: int
-    inner_code: str
     name: str
     created_on: datetime.date
     product_info: Optional[ProductInfo] = None

@@ -6,9 +6,11 @@ import json
 from pathlib import Path
 
 import pytest
+import requests
 
 from scrapers.common import Category
 from scrapers.pyaterochka.catalogue import parse_categories
+from scrapers.pyaterochka.scraper import request_data
 
 
 # path to example catalogue data
@@ -37,3 +39,40 @@ def test_parse_categories(example_data):
     ]
     parsed_categories = parse_categories(example_data)
     assert expected_result == parsed_categories
+
+
+class MockResponse:
+    def __init__(self, status_code):
+        if 200 <= status_code < 400:
+            self.ok = True
+        else:
+            self.ok = False
+        self.status_code = status_code
+
+    @staticmethod
+    def json():
+        return {'products': []}
+
+
+def test_request_data(monkeypatch):
+    """
+    test that request_data returns a list when response is successful
+    """
+    def mock_response(*args, **kwargs):
+        return MockResponse(200)
+
+    monkeypatch.setattr(requests, 'get', mock_response)
+
+    assert request_data('some_category_id') == []
+
+
+def test_request_data_fails(monkeypatch):
+    """
+    test that request_date returns None if request is not successful
+    """
+    def mock_response(*args, **kwargs):
+        return MockResponse(403)
+
+    monkeypatch.setattr(requests, 'get', mock_response)
+
+    assert request_data('some_category_id') is None

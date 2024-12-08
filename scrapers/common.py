@@ -51,7 +51,7 @@ class Product(BaseModel):
     """
     product_id: str
     supermarket_id: int
-    category_id: int
+    category_id: str
     name: str
     created_on: datetime.date
     product_info: Optional[ProductInfo] = None

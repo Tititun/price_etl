@@ -28,14 +28,14 @@ def test_parse_categories(example_data):
     test that correct categories were parsed from the file
     """
     expected_result = [
-        Category(supermarket_id=None, category_id=None,
-                 inner_code='73C20455', name='Готовим оливье'),
-        Category(supermarket_id=None, category_id=None,
-                 inner_code='73C20456', name='Запекаем в духовке'),
-        Category(supermarket_id=None, category_id=None,
-                 inner_code='73C10301', name='Горячие напитки'),
-        Category(supermarket_id=None, category_id=None,
-                 inner_code='73C9714', name='Блинчики, сырники и каши'),
+        Category(supermarket_id=None, category_id='73C20455',
+                 name='Готовим оливье'),
+        Category(supermarket_id=None, category_id='73C20456',
+                 name='Запекаем в духовке'),
+        Category(supermarket_id=None, category_id='73C10301',
+                 name='Горячие напитки'),
+        Category(supermarket_id=None, category_id='73C9714',
+                 name='Блинчики, сырники и каши'),
     ]
     parsed_categories = parse_categories(example_data)
     assert expected_result == parsed_categories

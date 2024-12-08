@@ -15,13 +15,11 @@ CREATE TABLE IF NOT EXISTS categories (
 CREATE TABLE IF NOT EXISTS products (
     product_id VARCHAR(30) NOT NULL,
     supermarket_id INTEGER NOT NULL,
-    category_id INTEGER NOT NULL,
+    category_id VARCHAR(100) NOT NULL,
     name VARCHAR(200) NOT NULL,
     created_on DATE DEFAULT (CURRENT_DATE),
-    FOREIGN KEY product_supermarket (supermarket_id) REFERENCES supermarkets (supermarket_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY product_category (category_id) REFERENCES categories (category_id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY product_supermarket_category (supermarket_id, category_id)
+        REFERENCES categories (supermarket_id, category_id) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (product_id, supermarket_id)
 );
 

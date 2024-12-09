@@ -55,3 +55,10 @@ class Product(BaseModel):
     name: str
     created_on: datetime.date
     product_info: Optional[ProductInfo] = None
+
+
+class ProductList(BaseModel):
+    """
+    this class represents a list of Product instances
+    """
+    items: list[Product]

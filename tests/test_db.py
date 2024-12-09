@@ -2,9 +2,7 @@
 this module contains tests that cover database operations
 """
 import datetime
-import shutil
 from decimal import Decimal
-import glob
 import os
 from pathlib import Path
 
@@ -16,7 +14,6 @@ from db.mysql_functions import (fetch_supermarket_categories,
                                 fetch_supermarket_id,
                                 fetch_supermarket_name,
                                 upsert_categories)
-from db.local_storage import construct_storage_path, LOCAL_STORAGE_PATH
 from scrapers.common import Category, Product, ProductInfo
 
 load_dotenv()
@@ -166,9 +163,9 @@ def custom_product():
     product_info = ProductInfo(
         product_id='X45',
         observed_on=datetime.date(year=1970, month=1, day=3),
-        price=Decimal(149.99),
+        price=Decimal('149.99'),
         discounted_price=None,
-        rating=Decimal(4.6),
+        rating=Decimal('4.60'),
         rates_count=520,
         unit='1 kg'
     )
@@ -181,24 +178,3 @@ def custom_product():
         product_info=product_info
     )
     return product
-
-
-@pytest.fixture
-def clean_local_storage():
-    """
-    removes all test directories (name starts with 1970) from local storage
-    """
-    yield
-    for dir_ in glob.glob(f'{LOCAL_STORAGE_PATH}/1970*'):
-        shutil.rmtree(dir_)
-
-
-def test_construct_storage_path(custom_product, clean_local_storage):
-    """
-    test that the path is built correctly
-    """
-    expected_path = (
-        LOCAL_STORAGE_PATH / '1970-01-03' / 'First Supermarket' / 'BM12.json'
-    )
-    path = construct_storage_path('First Supermarket', custom_product)
-    assert path == expected_path

@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS categories (
 	supermarket_id INT NOT NULL,
     category_id VARCHAR(100) NOT NULL,
     name VARCHAR(100) NOT NULL,
+    last_scraped_on DATE,
     FOREIGN KEY categories_supermarket (supermarket_id)
 				REFERENCES supermarkets (supermarket_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	PRIMARY KEY (supermarket_id, category_id)

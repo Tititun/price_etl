@@ -69,7 +69,8 @@ def fetch_supermarket_categories(
     """
     with connection.cursor(dictionary=True) as cur:
         cur.execute(
-            'SELECT supermarket_id, category_id, c.name AS name'
+            'SELECT supermarket_id, category_id, c.name AS name,'
+            ' c.last_scraped_on'
             ' FROM categories c JOIN supermarkets s USING (supermarket_id)'
             ' WHERE s.name=%s',
             (name,)

@@ -30,6 +30,7 @@ class Category(BaseModel):
     supermarket_id: Optional[int]
     category_id: str
     name: str
+    last_scraped_on: Optional[datetime.date] = None
 
 
 class ProductInfo(BaseModel):

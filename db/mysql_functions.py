@@ -42,6 +42,23 @@ def fetch_supermarket_id(connection: MySQLConnectionAbstract, name: str)\
     return result[0] if result else None
 
 
+def fetch_supermarket_name(connection: MySQLConnectionAbstract, id_: int)\
+        -> Optional[str]:
+    """
+    fetches a supermarket's name by its id from the database
+    :param connection: MySQL connection
+    :param str id_: id of the supermarket
+    :returns: name of the supermarket or None if not found
+    """
+    with connection.cursor() as cur:
+        cur.execute(
+            'SELECT name FROM supermarkets WHERE supermarket_id=%s',
+            (id_,)
+        )
+        result = cur.fetchone()
+    return result[0] if result else None
+
+
 def fetch_supermarket_categories(
         connection: MySQLConnectionAbstract, name: str) -> list[Category]:
     """

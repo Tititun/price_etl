@@ -10,6 +10,7 @@ import pytest
 
 from db.mysql_functions import (fetch_supermarket_categories,
                                 fetch_supermarket_id,
+                                fetch_supermarket_name,
                                 upsert_categories)
 from scrapers.common import Category
 
@@ -72,6 +73,14 @@ def test_fetch_supermarket_id_fetches_none(db_connection):
     """
     result = fetch_supermarket_id(db_connection, 'Imaginary Supermarket')
     assert result is None
+
+
+def test_fetch_supermarket_name(db_connection):
+    """
+    test if fetch_supermarket_name returns name for an existent supermarket
+    """
+    result = fetch_supermarket_name(db_connection, 1)
+    assert result == 'First Supermarket'
 
 
 def test_fetch_supermarket_categories(db_connection):

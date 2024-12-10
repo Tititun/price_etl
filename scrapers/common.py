@@ -4,6 +4,7 @@ This file contains common objects which can be used by many scrapers
 
 import datetime
 from decimal import Decimal
+import pytz
 from typing import Optional
 
 from pydantic import BaseModel
@@ -20,6 +21,14 @@ log_args = {
     'format': '%(levelname)s %(filename)s %(asctime)s: %(message)s',
     'datefmt': '%Y-%m-%d %H:%M:%S',
 }
+
+
+def get_today_date() -> datetime.date:
+    """
+    gets current date for 'Asia/Tomsk' timezone
+    :return: datetime.date
+    """
+    return datetime.datetime.now(tz=pytz.timezone('Asia/Tomsk')).date()
 
 
 class Category(BaseModel):

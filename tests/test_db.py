@@ -10,24 +10,28 @@ from dotenv import load_dotenv
 import mysql.connector
 import pytest
 
-from db.mysql_functions import (fetch_supermarket_categories,
+from db.mysql_functions import (fetch_category_to_scrape,
+                                fetch_supermarket_categories,
                                 fetch_supermarket_id,
                                 fetch_supermarket_name,
                                 upsert_categories)
-from scrapers.common import Category, Product, ProductInfo
+from scrapers.common import Category, Product, ProductInfo, get_today_date
 
 load_dotenv()
+today = get_today_date()
+ten_days_ago = today - datetime.timedelta(days=10)
 
 # SQL queries to execute during the setup in db_connection fixture
 setup_queries = [
     'INSERT INTO supermarkets VALUES (1, "First Supermarket"),'
     ' (2, "Second Supermarket");',
 
-    'INSERT INTO categories (supermarket_id, category_id, name) '
+    'INSERT INTO categories '
+    '(supermarket_id, category_id, name, last_scraped_on) '
     'VALUES '
-    '(1, "test_id_1", "First Category"),'
-    '(1, "test_id_2", "Second Category"),'
-    '(2, "test_id_3", "Third Category");'
+    '(1, "test_id_1", "First Category", null),'
+    f'(1, "test_id_2", "Second Category", "{today}"),'
+    f'(2, "test_id_3", "Third Category", "{ten_days_ago}");'
 ]
 
 
@@ -95,7 +99,7 @@ def test_fetch_supermarket_categories(db_connection):
         Category(supermarket_id=1, category_id='test_id_1',
                  name='First Category'),
         Category(supermarket_id=1, category_id='test_id_2',
-                 name='Second Category'),
+                 name='Second Category', last_scraped_on=today),
     ]
     assert result == expected
 
@@ -115,7 +119,7 @@ def test_upsert_categories_new_categories(db_connection):
     expected_result = [
         Category(
             supermarket_id=2, category_id='test_id_3',
-            name='Third Category'),
+            name='Third Category', last_scraped_on=ten_days_ago),
         Category(
             supermarket_id=2, category_id='test_id_4',
             name='Fourth Category'),
@@ -137,7 +141,7 @@ def test_upsert_categories_no_duplicates(db_connection):
     categories_to_insert = [
         Category(
             supermarket_id=None, category_id='test_id_3',
-            name='Third Category Different'),
+            name='Third Category Different', last_scraped_on=ten_days_ago),
         Category(
             supermarket_id=None, category_id='test_id_4',
             name='Fourth Category'),
@@ -145,7 +149,7 @@ def test_upsert_categories_no_duplicates(db_connection):
     expected_result = [
         Category(
             supermarket_id=2, category_id='test_id_3',
-            name='Third Category'),
+            name='Third Category', last_scraped_on=ten_days_ago),
         Category(
             supermarket_id=2, category_id='test_id_4',
             name='Fourth Category'),
@@ -155,6 +159,36 @@ def test_upsert_categories_no_duplicates(db_connection):
                       supermarket=supermarket)
     categories = fetch_supermarket_categories(db_connection, supermarket)
     assert categories == expected_result
+
+
+def test_fetch_category_to_scrape_none(db_connection):
+    """
+    test that fetch_category_to_scrape fetches a category with
+    last_scraped_on = None
+    """
+    expected_result = Category(
+        supermarket_id=1,
+        category_id='test_id_1',
+        name='First Category',
+        last_scraped_on=None
+    )
+    result = fetch_category_to_scrape(db_connection, 'First Supermarket')
+    assert expected_result == result
+
+
+def test_fetch_category_to_scrape_fetches(db_connection):
+    """
+    test that fetch_category_to_scrape fetches a category with
+    last_scraped_on with scraped_on more than 7 days from now in the past
+    """
+    expected_result = Category(
+        supermarket_id=2,
+        category_id='test_id_3',
+        name='Third Category',
+        last_scraped_on=ten_days_ago
+    )
+    result = fetch_category_to_scrape(db_connection, 'Second Supermarket')
+    assert expected_result == result
 
 
 @pytest.fixture

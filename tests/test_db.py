@@ -16,6 +16,7 @@ from db.mysql_functions import (fetch_products_ids,
                                 fetch_supermarket_id,
                                 fetch_supermarket_name,
                                 insert_new_products,
+                                insert_product_infos,
                                 upsert_categories,
                                 update_existent_products)
 from scrapers.common import (Category, Product, ProductInfo, ProductList,
@@ -213,30 +214,6 @@ def test_fetch_products_ids(db_connection):
 
 
 @pytest.fixture
-def custom_product():
-    """creates a custom product with predefined parameters"""
-    product_info = ProductInfo(
-        product_id='X45',
-        supermarket_id=1,
-        observed_on=datetime.date(year=1970, month=1, day=3),
-        price=Decimal('149.99'),
-        discounted_price=None,
-        rating=Decimal('4.60'),
-        rates_count=520,
-        unit='1 kg'
-    )
-    product = Product(
-        product_id='X45',
-        supermarket_id=1,
-        category_id='BM12',
-        name='Apples',
-        created_on=datetime.date(year=1970, month=1, day=1),
-        product_info=product_info
-    )
-    return product
-
-
-@pytest.fixture
 def starter_products() -> ProductList:
     """
     creates a list of products that are inserted into test_database
@@ -330,4 +307,54 @@ def test_insert_new_products(db_connection, new_products):
     ]
     assert result == expected_result
 
+
+@pytest.fixture
+def new_product_infos():
+    return [
+       ProductInfo(
+           product_id='product_id_1',
+           supermarket_id=1,
+           observed_on=datetime.date(year=2020, month=1, day=10),
+           price=Decimal('149.99'),
+           discounted_price=None,
+           rating=Decimal('4.60'),
+           rates_count=520,
+           unit='1 kg'
+       ),
+       ProductInfo(
+           product_id='product_id_2',
+           supermarket_id=1,
+           observed_on=datetime.date(year=2020, month=1, day=10),
+           price=Decimal('199.99'),
+           discounted_price=Decimal('189.99'),
+           rating=Decimal('4.90'),
+           rates_count=800,
+           unit='2 l'
+       )
+    ]
+
+
+def test_insert_product_infos(db_connection, new_product_infos):
+    """
+    test that new records are inserted into product_info table as expected
+    """
+    insert_product_infos(db_connection, new_product_infos)
+    with db_connection.cursor() as cursor:
+        cursor.execute(
+            """
+                SELECT
+                    product_id, supermarket_id, observed_on, price,
+                    discounted_price, rating, rates_count, unit
+                FROM product_info
+                WHERE supermarket_id=1
+                ORDER BY product_id
+            """)
+        result = cursor.fetchall()
+    expected_result = [
+        ('product_id_1', 1, datetime.date(year=2020, month=1, day=10),
+         Decimal('149.99'), None, Decimal('4.60'), 520, '1 kg'),
+        ('product_id_2', 1, datetime.date(year=2020, month=1, day=10),
+         Decimal('199.99'), Decimal('189.99'), Decimal('4.90'), 800, '2 l'),
+    ]
+    assert result == expected_result
 

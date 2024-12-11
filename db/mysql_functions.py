@@ -203,6 +203,15 @@ def insert_product_infos(
     :param connection: MySQL connection
     :param product_infos: list of ProductInfo to insert or update
     """
+    with connection.cursor() as cursor:
+        cursor.executemany(
+            """
+            INSERT IGNORE INTO product_info VALUES
+               (%(product_id)s, %(supermarket_id)s, %(observed_on)s, %(price)s, 
+               %(discounted_price)s, %(rating)s, %(rates_count)s, %(unit)s)
+            """, [info.model_dump() for info in product_infos]
+        )
+        connection.commit()
 
 
 def upsert_product_list(connection: MySQLConnectionAbstract,

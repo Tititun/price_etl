@@ -123,6 +123,7 @@ def test_parse_data(category, example_product_list):
                 created_on=today,
                 product_info=ProductInfo(
                     product_id='4133363',
+                    supermarket_id=1,
                     observed_on=today,
                     price=Decimal("69.99"),
                     discounted_price=None,
@@ -139,6 +140,7 @@ def test_parse_data(category, example_product_list):
                 created_on=today,
                 product_info=ProductInfo(
                     product_id='2138420',
+                    supermarket_id=1,
                     observed_on=today,
                     price=Decimal("67.99"),
                     discounted_price=Decimal("59.99"),

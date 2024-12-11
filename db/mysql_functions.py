@@ -193,12 +193,24 @@ def insert_new_products(
         connection.commit()
 
 
+def insert_product_infos(
+        connection: MySQLConnectionAbstract,
+        product_infos: list[ProductInfo]
+    ) -> None:
+    """
+    inserts product information into product_info table
+    duplicates on (product_id, observed_on) will not be inserted
+    :param connection: MySQL connection
+    :param product_infos: list of ProductInfo to insert or update
+    """
+
+
 def upsert_product_list(connection: MySQLConnectionAbstract,
                         product_list: ProductList) -> None:
     """
-    inserts new products into database if they are new
     updates product's name and category_id if these products already exist
-    upserts product_info for each product
+    inserts new products into database if they are new
+    inserts product_info for each product
     :param connection: MySQL connection
     :param product_list: ProductList
     """
@@ -210,11 +222,13 @@ def upsert_product_list(connection: MySQLConnectionAbstract,
 
     to_insert = ProductList(items=[])
     to_update = ProductList(items=[])
+    product_infos = []
     for product in product_list.items:
         if product.product_id in existent_product_ids:
             to_update.items.append(product)
         else:
             to_insert.items.append(product)
+        product_infos.append(product.product_info)
 
     update_existent_products(connection, to_update)
     insert_new_products(connection, to_insert)

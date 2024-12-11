@@ -62,6 +62,7 @@ class ProductInfo(BaseModel):
     this class represents product info which is associated with a product
     """
     product_id: str
+    supermarket_id: int
     observed_on: datetime.date
     price: Optional[Decimal]
     discounted_price: Optional[Decimal]

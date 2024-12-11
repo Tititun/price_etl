@@ -217,6 +217,7 @@ def custom_product():
     """creates a custom product with predefined parameters"""
     product_info = ProductInfo(
         product_id='X45',
+        supermarket_id=1,
         observed_on=datetime.date(year=1970, month=1, day=3),
         price=Decimal('149.99'),
         discounted_price=None,

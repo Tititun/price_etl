@@ -27,13 +27,18 @@ CREATE TABLE IF NOT EXISTS products (
 
 CREATE TABLE IF NOT EXISTS product_info (
     product_id VARCHAR(30) NOT NULL,
+    supermarket_id INT NOT NULL,
     observed_on DATE DEFAULT (CURRENT_DATE),
     price DECIMAL(8, 2),
     discounted_price DECIMAL(8, 2),
     rating DECIMAL (3, 2),
     rates_count MEDIUMINT UNSIGNED,
     unit VARCHAR(100),
-    FOREIGN KEY product_info_product (product_id) REFERENCES products (product_id)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-    PRIMARY KEY (product_id, observed_on)
+    FOREIGN KEY product_info_product (product_id)
+        REFERENCES products (product_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY product_info_supermarket (supermarket_id)
+        REFERENCES supermarkets (supermarket_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY (product_id, supermarket_id, observed_on)
 )

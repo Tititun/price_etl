@@ -62,6 +62,7 @@ def parse_data(request_data: RequestData) -> ProductList:
         rating_info = record.get('rating') or {}
         product_info = ProductInfo(
             product_id=product_id,
+            supermarket_id=request_data.category.supermarket_id,
             observed_on=request_data.date,
             price=parse_price(record['prices'], 'regular'),
             discounted_price=parse_price(record['prices'], 'discount'),

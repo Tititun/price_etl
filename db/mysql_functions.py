@@ -154,6 +154,25 @@ def fetch_products_ids(
         return [res[0] for res in cursor.fetchall()]
 
 
+def update_existent_products(
+        connection: MySQLConnectionAbstract,
+        to_update: ProductList
+        ) -> None:
+    """
+    updates existent products in the database - their category_id and name
+    :param connection: MySQL connection
+    :param to_update: ProductList containing Product objects to update
+    """
+    with connection.cursor() as cursor:
+        cursor.executemany(
+           'UPDATE products '
+           'SET category_id=%(category_id)s, name=%(name)s '
+           'WHERE product_id=%(product_id)s',
+            to_update.model_dump()['items']
+        )
+        connection.commit()
+
+
 def upsert_product_list(connection: MySQLConnectionAbstract,
                         product_list: ProductList) -> None:
     """
@@ -163,6 +182,16 @@ def upsert_product_list(connection: MySQLConnectionAbstract,
     :param connection: MySQL connection
     :param product_list: ProductList
     """
+    supermarket_id = product_list.items[0].supermarket_id
+    category_id = product_list.items[0].category_id
+
+    conn = mysql_connect()
+    existent_product_ids = fetch_products_ids(conn, supermarket_id, category_id)
+
+    to_insert = []
+    to_update = []
+    # for product in product_list.items:
+
 
 
 

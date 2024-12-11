@@ -15,8 +15,10 @@ from db.mysql_functions import (fetch_products_ids,
                                 fetch_supermarket_categories,
                                 fetch_supermarket_id,
                                 fetch_supermarket_name,
-                                upsert_categories)
-from scrapers.common import Category, Product, ProductInfo, get_today_date
+                                upsert_categories,
+                                update_existent_products)
+from scrapers.common import (Category, Product, ProductInfo, ProductList,
+                             get_today_date)
 
 load_dotenv()
 today = get_today_date()
@@ -230,3 +232,46 @@ def custom_product():
         product_info=product_info
     )
     return product
+
+
+@pytest.fixture
+def starter_products() -> ProductList:
+    """
+    creates a list of products that are inserted into test_database
+    upon its creation
+    """
+    return ProductList(
+        items=[
+            Product(
+                product_id='product_id_1',
+                supermarket_id=1,
+                category_id='test_id_1',
+                name='Product 1',
+                created_on=datetime.date(year=2020, month=1, day=1),
+            ),
+            Product(
+                product_id='product_id_2',
+                supermarket_id=1,
+                category_id='test_id_1',
+                name='Product 2',
+                created_on=datetime.date(year=2020, month=1, day=2),
+            )
+        ]
+    )
+
+
+def test_update_existent_products(db_connection, starter_products):
+    """
+    test that update_existent_products updates category_id and name of products
+    """
+    starter_products.items[0].name = 'Product X'
+    starter_products.items[1].category_id = 'test_id_2'
+    update_existent_products(db_connection, starter_products)
+    with db_connection.cursor() as cursor:
+        cursor.execute('SELECT category_id, name FROM products '
+                       'WHERE product_id '
+                       'IN ("product_id_1", "product_id_2") AND '
+                       'supermarket_id = 1 ORDER BY category_id')
+        result = cursor.fetchall()
+    assert result == [('test_id_1', 'Product X'),
+                      ('test_id_2', 'Product 2')]

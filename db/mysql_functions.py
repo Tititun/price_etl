@@ -173,6 +173,26 @@ def update_existent_products(
         connection.commit()
 
 
+def insert_new_products(
+        connection: MySQLConnectionAbstract,
+        to_insert: ProductList
+        ) -> None:
+    """
+    inserts new products into the database
+    :param connection: MySQL connection
+    :param to_insert: ProductList containing Product objects to insert
+    """
+    with connection.cursor() as cursor:
+        cursor.executemany(
+           """
+           INSERT INTO products VALUES
+              (%(product_id)s, %(supermarket_id)s, %(category_id)s, %(name)s, 
+              %(created_on)s)
+           """, to_insert.model_dump()['items']
+        )
+        connection.commit()
+
+
 def upsert_product_list(connection: MySQLConnectionAbstract,
                         product_list: ProductList) -> None:
     """
@@ -188,12 +208,16 @@ def upsert_product_list(connection: MySQLConnectionAbstract,
     conn = mysql_connect()
     existent_product_ids = fetch_products_ids(conn, supermarket_id, category_id)
 
-    to_insert = []
-    to_update = []
-    # for product in product_list.items:
+    to_insert = ProductList(items=[])
+    to_update = ProductList(items=[])
+    for product in product_list.items:
+        if product.product_id in existent_product_ids:
+            to_update.items.append(product)
+        else:
+            to_insert.items.append(product)
 
-
-
+    update_existent_products(connection, to_update)
+    insert_new_products(connection, to_insert)
 
 
 if __name__ == '__main__':

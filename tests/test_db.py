@@ -15,6 +15,7 @@ from db.mysql_functions import (fetch_products_ids,
                                 fetch_supermarket_categories,
                                 fetch_supermarket_id,
                                 fetch_supermarket_name,
+                                insert_new_products,
                                 upsert_categories,
                                 update_existent_products)
 from scrapers.common import (Category, Product, ProductInfo, ProductList,
@@ -260,6 +261,32 @@ def starter_products() -> ProductList:
     )
 
 
+@pytest.fixture
+def new_products() -> ProductList:
+    """
+    creates a list of new products that test_database doesn't have in its
+    products table
+    """
+    return ProductList(
+        items=[
+            Product(
+                product_id='product_id_4',
+                supermarket_id=1,
+                category_id='test_id_2',
+                name='Product 4',
+                created_on=datetime.date(year=2020, month=1, day=5),
+            ),
+            Product(
+                product_id='product_id_5',
+                supermarket_id=1,
+                category_id='test_id_2',
+                name='Product 5',
+                created_on=datetime.date(year=2020, month=1, day=5),
+            )
+        ]
+    )
+
+
 def test_update_existent_products(db_connection, starter_products):
     """
     test that update_existent_products updates category_id and name of products
@@ -275,3 +302,31 @@ def test_update_existent_products(db_connection, starter_products):
         result = cursor.fetchall()
     assert result == [('test_id_1', 'Product X'),
                       ('test_id_2', 'Product 2')]
+
+
+def test_insert_new_products(db_connection, new_products):
+    """
+    test that insert_new_products insets products from provided ProductList
+    """
+    insert_new_products(db_connection, new_products)
+    with db_connection.cursor() as cursor:
+        cursor.execute(
+            """
+                SELECT
+                    product_id, supermarket_id, category_id, name, created_on
+                FROM products
+                WHERE supermarket_id=1 AND category_id='test_id_2'
+            """)
+        result = cursor.fetchall()
+
+    expected_result = [
+        ('product_id_3', 1, 'test_id_2',
+         'Product 3', datetime.date(2020, 1, 3)),
+        ('product_id_4', 1, 'test_id_2',
+         'Product 4', datetime.date(2020, 1, 5)),
+        ('product_id_5', 1, 'test_id_2', 'Product 5',
+         datetime.date(2020, 1, 5)),
+    ]
+    assert result == expected_result
+
+

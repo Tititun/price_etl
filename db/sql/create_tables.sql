@@ -35,5 +35,5 @@ CREATE TABLE IF NOT EXISTS product_info (
     unit VARCHAR(100),
     FOREIGN KEY product_info_product (product_id) REFERENCES products (product_id)
     ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT product_observed_date_unique UNIQUE (product_id, observed_on)
+    PRIMARY KEY (product_id, observed_on)
 )

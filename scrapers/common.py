@@ -78,7 +78,9 @@ class RequestData(BaseModel):
     """
     this class represents data returned by requests function where data is the
     data received from the endpoint,
-    date is the date of request and
+    date is the date of request,
+    category - category for which request was made
     """
+    category: Category
     data: dict
     date: datetime.date

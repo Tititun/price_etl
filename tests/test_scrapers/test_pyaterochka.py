@@ -54,7 +54,20 @@ class MockResponse:
         return {'products': []}
 
 
-def test_request_data(monkeypatch):
+@pytest.fixture
+def category():
+    """
+    represents a Category object
+    """
+    return Category(
+        supermarket_id=1,
+        category_id="someID",
+        name="Some name",
+        last_scraped_on=None
+    )
+
+
+def test_request_data(category, monkeypatch):
     """
     test that request_data returns a list when response is successful
     """
@@ -62,12 +75,13 @@ def test_request_data(monkeypatch):
         return MockResponse(200)
 
     monkeypatch.setattr(requests, 'get', mock_response)
-    expected_result = RequestData(data={"products": []}, date=get_today_date())
+    expected_result = RequestData(category=category,
+                                  data={"products": []},
+                                  date=get_today_date())
+    assert request_data(category) == expected_result
 
-    assert request_data('some_category_id') == expected_result
 
-
-def test_request_data_fails(monkeypatch):
+def test_request_data_fails(category, monkeypatch):
     """
     test that request_date returns None if request is not successful
     """
@@ -76,4 +90,4 @@ def test_request_data_fails(monkeypatch):
 
     monkeypatch.setattr(requests, 'get', mock_response)
 
-    assert request_data('some_category_id') is None
+    assert request_data(category) is None

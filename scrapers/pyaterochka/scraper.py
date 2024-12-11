@@ -15,12 +15,12 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(**log_args, level=logging.DEBUG)
 
 
-def request_data(category_id: str) -> RequestData:
+def request_data(category: Category) -> RequestData:
     """
-    requests all the products for the given category id and returns them
-    as json data
-    :param str category_id: id of the category taken from the database
-    :return: products' information as a list
+    requests all the products for the given category and returns them as
+    RequestData
+    :param category: Category to scrape taken from the database
+    :return: RequestData
     """
     params = {
         'mode': 'delivery',
@@ -28,12 +28,13 @@ def request_data(category_id: str) -> RequestData:
     }
     response = requests.get(
         f'https://5d.5ka.ru/api/catalog/v1/stores/{SUPERMARKET_CODE}/'
-        f'categories/{category_id}/products',
+        f'categories/{category.category_id}/products',
         params=params,
         headers=headers,
     )
     if response.ok:
-        return RequestData(data={"products": response.json()['products']},
+        return RequestData(category=category,
+                           data={"products": response.json()['products']},
                            date=get_today_date())
 
     else:
@@ -41,17 +42,16 @@ def request_data(category_id: str) -> RequestData:
                      f'status code {response.status_code}')
 
 
-def parse_data(raw_data: list) -> list[Product]:
+def parse_data(raw_data: RequestData) -> ProductList:
     """
     takes in the data returned by request to the server and parses all the
     products with their prices from it
-    :param raw_data: json data as a dictionary
+    :param raw_data: data as a RequestData object
     :return: ProductList - validated list of Product objects
     """
-    # data = request_data(category.category_id)
-    # date = datetime.date.today()
-    # results = []
-    # for record in data:
+
+    product_list = ProductList(items=[])
+    # for record in RequestData.data["products"]:
     #     product_id = str(record['plu'])
     #     product = Product(
     #         product_id=product_id,
@@ -72,7 +72,7 @@ def parse_data(raw_data: list) -> list[Product]:
     #     )
     #     product.product_info = product_info
     #     results.append(product)
-    # return results
+    return product_list
 
 
 if __name__ == '__main__':

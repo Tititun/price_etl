@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 import mysql.connector
 from mysql.connector.abstracts import MySQLConnectionAbstract
 
-from scrapers.common import Category, get_today_date
+from scrapers.common import (Category, Product, ProductInfo,
+                             ProductList, get_today_date)
 
 load_dotenv()
 
@@ -132,6 +133,35 @@ def upsert_categories(
         )
         connection.commit()
     return
+
+
+def fetch_products_ids(
+        connection: MySQLConnectionAbstract, category: Category) -> list[str]:
+    """
+    fetches ids of all products that are releated to Category
+    :param connection: MySQL connection
+    :param category: Category
+    :return: list of products' ids
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(
+            'SELECT product_id FROM products '
+            'WHERE supermarket_id=%s AND category_id=%s;',
+            (category.supermarket_id, category.category_id)
+        )
+        return [res[0] for res in cursor.fetchall()]
+
+
+
+def upsert_product_list(connection: MySQLConnectionAbstract,
+                        product_list: ProductList) -> None:
+    """
+    inserts new products into database if they are new
+    updates product's name and category_id if these products already exist
+    upserts product_info for each product
+    :param connection: MySQL connection
+    :param product_list: ProductList
+    """
 
 
 if __name__ == '__main__':

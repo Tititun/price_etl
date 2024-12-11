@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 import mysql.connector
 import pytest
 
-from db.mysql_functions import (fetch_category_to_scrape,
+from db.mysql_functions import (fetch_products_ids,
+                                fetch_category_to_scrape,
                                 fetch_supermarket_categories,
                                 fetch_supermarket_id,
                                 fetch_supermarket_name,
@@ -31,7 +32,14 @@ setup_queries = [
     'VALUES '
     '(1, "test_id_1", "First Category", null),'
     f'(1, "test_id_2", "Second Category", "{today}"),'
-    f'(2, "test_id_3", "Third Category", "{ten_days_ago}");'
+    f'(2, "test_id_3", "Third Category", "{ten_days_ago}");',
+    
+    'INSERT INTO products '
+    '(product_id, supermarket_id, category_id, name, created_on) '
+    'VALUES '
+    '("product_id_1", 1, "test_id_1", "Product 1", "2020-01-01"),'
+    '("product_id_2", 1, "test_id_1", "Product 2", "2020-01-02"),'
+    '("product_id_3", 1, "test_id_2", "Product 3", "2020-01-03")'
 ]
 
 
@@ -189,6 +197,17 @@ def test_fetch_category_to_scrape_fetches(db_connection):
     )
     result = fetch_category_to_scrape(db_connection, 'Second Supermarket')
     assert expected_result == result
+
+
+def test_fetch_products_ids(db_connection):
+    """
+    test that fetch_products_ids fetches the expected list of product ids for
+    a given category
+    """
+    category = Category(supermarket_id=1, category_id='test_id_1',
+                        name='First Category')
+    expected_result = ['product_id_1', 'product_id_2']
+    assert fetch_products_ids(db_connection, category) == expected_result
 
 
 @pytest.fixture

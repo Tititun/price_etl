@@ -88,6 +88,9 @@ class ProductList(BaseModel):
     """
     items: list[Product]
 
+    def get_products_ids(self) -> list[str]:
+        return [product.product_id for product in self.items]
+
 
 class RequestData(BaseModel):
     """

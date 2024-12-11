@@ -204,10 +204,9 @@ def test_fetch_products_ids(db_connection):
     test that fetch_products_ids fetches the expected list of product ids for
     a given category
     """
-    category = Category(supermarket_id=1, category_id='test_id_1',
-                        name='First Category')
     expected_result = ['product_id_1', 'product_id_2']
-    assert fetch_products_ids(db_connection, category) == expected_result
+    fetched_results = fetch_products_ids(db_connection, 1, 'test_id_1')
+    assert fetched_results == expected_result
 
 
 @pytest.fixture

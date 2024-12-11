@@ -136,21 +136,22 @@ def upsert_categories(
 
 
 def fetch_products_ids(
-        connection: MySQLConnectionAbstract, category: Category) -> list[str]:
+        connection: MySQLConnectionAbstract,
+        supermarket_id: int, category_id: str) -> list[str]:
     """
-    fetches ids of all products that are releated to Category
+    fetches ids of all products with supermarket_id and category_id
     :param connection: MySQL connection
-    :param category: Category
+    :param supermarket_id: id of the supermarket
+    :param category_id: id of the category
     :return: list of products' ids
     """
     with connection.cursor() as cursor:
         cursor.execute(
             'SELECT product_id FROM products '
             'WHERE supermarket_id=%s AND category_id=%s;',
-            (category.supermarket_id, category.category_id)
+            (supermarket_id, category_id)
         )
         return [res[0] for res in cursor.fetchall()]
-
 
 
 def upsert_product_list(connection: MySQLConnectionAbstract,
@@ -162,6 +163,8 @@ def upsert_product_list(connection: MySQLConnectionAbstract,
     :param connection: MySQL connection
     :param product_list: ProductList
     """
+
+
 
 
 if __name__ == '__main__':

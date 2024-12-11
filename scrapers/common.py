@@ -91,6 +91,9 @@ class ProductList(BaseModel):
     def get_products_ids(self) -> list[str]:
         return [product.product_id for product in self.items]
 
+    def __bool__(self):
+        return len(self.items) > 0
+
 
 class RequestData(BaseModel):
     """

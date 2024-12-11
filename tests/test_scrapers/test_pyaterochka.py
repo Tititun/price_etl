@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 import requests
 
-from scrapers.common import Category
+from scrapers.common import Category, RequestData, get_today_date
 from scrapers.pyaterochka.catalogue import parse_categories
 from scrapers.pyaterochka.scraper import request_data
 
@@ -62,8 +62,9 @@ def test_request_data(monkeypatch):
         return MockResponse(200)
 
     monkeypatch.setattr(requests, 'get', mock_response)
+    expected_result = RequestData(data={"products": []}, date=get_today_date())
 
-    assert request_data('some_category_id') == []
+    assert request_data('some_category_id') == expected_result
 
 
 def test_request_data_fails(monkeypatch):

@@ -72,3 +72,13 @@ class ProductList(BaseModel):
     this class represents a list of Product instances
     """
     items: list[Product]
+
+
+class RequestData(BaseModel):
+    """
+    this class represents data returned by requests function where data is the
+    data received from the endpoint,
+    date is the date of request and
+    """
+    data: dict
+    date: datetime.date

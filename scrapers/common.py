@@ -31,6 +31,21 @@ def get_today_date() -> datetime.date:
     return datetime.datetime.now(tz=pytz.timezone('Asia/Tomsk')).date()
 
 
+def parse_price(item: dict, field_name: str) -> Optional[Decimal]:
+    """
+    parses field_name from item, trying to convert it to Decimal if it's not
+    None
+    :param item: dictionary
+    :field_name: string - key to get from item dictionary
+    :return: Decimal if field_name in item, else None
+    """
+    value = item.get(field_name)
+    if value is None:
+        return
+    else:
+        return Decimal(str(value))
+
+
 class Category(BaseModel):
     """
     this class is used to validate category data which

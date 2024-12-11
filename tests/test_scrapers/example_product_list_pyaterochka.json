@@ -1,0 +1,61 @@
+[
+    {
+        "plu": 4133363,
+        "name": "Шоколадный батончик Snickers Super 80г",
+        "image_links": {
+            "small": [
+                "https://photos.okolo.app/product/1213342-main/320x320.jpeg?updated_at=2024-12-09T17:18:32.131Z"
+            ],
+            "normal": [
+                "https://photos.okolo.app/product/1213342-main/800x800.jpeg?updated_at=2024-12-09T17:18:32.131Z",
+                "https://photos.okolo.app/product/83dcaaf27bb4c3b7ac78652e7e5ecb36-additional/800x800.jpeg",
+                "https://photos.okolo.app/product/9a93c5be116fe0201dd8d8d1e3f266fb-additional/800x800.jpeg",
+                "https://photos.okolo.app/product/799ea95ea12eaf9c338bd91cd0538b60-additional/800x800.jpeg"
+            ]
+        },
+        "uom": "шт",
+        "step": "1.0",
+        "rating": {
+            "rating_average": 4.94,
+            "rates_count": 47688
+        },
+        "promo": null,
+        "prices": {
+            "regular": "69.99",
+            "discount": null
+        },
+        "labels": null,
+        "property_clarification": "80 г",
+        "has_age_restriction": false,
+        "stock_limit": "69.00"
+    },
+    {
+        "plu": 2138420,
+        "name": "Шоколадный батончик Twix Xtra с карамелью 82г",
+        "image_links": {
+            "small": [
+                "https://photos.okolo.app/product/1161073-main/320x320.jpeg?updated_at=2024-12-09T11:40:18.039Z"
+            ],
+            "normal": [
+                "https://photos.okolo.app/product/1161073-main/800x800.jpeg?updated_at=2024-12-09T11:40:18.039Z",
+                "https://photos.okolo.app/product/6e47174cf869915000c33ce0d114e867-additional/800x800.jpeg",
+                "https://photos.okolo.app/product/1dcfa00be01701e6251dd584eb824f48-additional/800x800.jpeg"
+            ]
+        },
+        "uom": "шт",
+        "step": "1.0",
+        "rating": {
+            "rating_average": 4.94,
+            "rates_count": 28393
+        },
+        "promo": null,
+        "prices": {
+            "regular": "67.99",
+            "discount": "59.99"
+        },
+        "labels": null,
+        "property_clarification": "82 г",
+        "has_age_restriction": false,
+        "stock_limit": "15.00"
+    }
+]

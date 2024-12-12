@@ -23,14 +23,14 @@ def test_parse_price_decimal():
 def product_list():
     return ProductList(
         items=[
-            Product(product_id='product_id_1',
-                    supermarket_id=1,
-                    category_id='some_category',
+            Product(product_id=1,
+                    product_code='product_id_1',
+                    category_id=1,
                     name='Product 1',
                     created_on=datetime.date(2000, 1, 1)),
-            Product(product_id='product_id_2',
-                    supermarket_id=1,
-                    category_id='some_category',
+            Product(product_id=2,
+                    product_code='product_id_2',
+                    category_id=1,
                     name='Product 2',
                     created_on=datetime.date(2000, 1, 1))
         ]
@@ -42,4 +42,4 @@ def test_product_list_get_products_ids(product_list):
     test that get_products_ids method of ProductList class returns a list
     of expected ids
     """
-    assert product_list.get_products_ids() == ['product_id_1', 'product_id_2']
+    assert product_list.get_products_codes() == ['product_id_1', 'product_id_2']

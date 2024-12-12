@@ -9,7 +9,7 @@ import mysql.connector
 from mysql.connector.abstracts import MySQLConnectionAbstract
 
 from scrapers.common import (Category, Product, ProductInfo,
-                             ProductList, get_today_date)
+                             ProductList, Supermarket, get_today_date)
 
 load_dotenv()
 
@@ -26,13 +26,14 @@ def mysql_connect() -> MySQLConnectionAbstract:
     return connection
 
 
-def fetch_supermarket_id(connection: MySQLConnectionAbstract, name: str)\
-        -> Optional[int]:
+def fetch_supermarket_by_name(connection: MySQLConnectionAbstract, name: str)\
+        -> Optional[Supermarket]:
     """
     fetches a supermarket's id by its name from the database
+    and makes a Supermarket object
     :param connection: MySQL connection
-    :param str name: name of the supermarket
-    :returns: id of the supermarket or None if not found
+    :param str name: name by which to perform search
+    :returns: Supermarket object or None if not found
     """
     with connection.cursor() as cur:
         cur.execute(
@@ -40,16 +41,18 @@ def fetch_supermarket_id(connection: MySQLConnectionAbstract, name: str)\
             (name,)
         )
         result = cur.fetchone()
-    return result[0] if result else None
+    if result:
+        return Supermarket(supermarket_id=result[0], name=name)
 
 
-def fetch_supermarket_name(connection: MySQLConnectionAbstract, id_: int)\
-        -> Optional[str]:
+def fetch_supermarket_by_id(connection: MySQLConnectionAbstract, id_: int)\
+        -> Optional[Supermarket]:
     """
     fetches a supermarket's name by its id from the database
+    and makes a Supermarket object
     :param connection: MySQL connection
-    :param str id_: id of the supermarket
-    :returns: name of the supermarket or None if not found
+    :param str id_: id by which to perform search
+    :returns: Supermarket or None if not found
     """
     with connection.cursor() as cur:
         cur.execute(
@@ -57,16 +60,17 @@ def fetch_supermarket_name(connection: MySQLConnectionAbstract, id_: int)\
             (id_,)
         )
         result = cur.fetchone()
-    return result[0] if result else None
+    if result:
+        return Supermarket(supermarket_id=id_, name=result[0])
 
 
 def fetch_category_to_scrape(connection: MySQLConnectionAbstract,
-                             supermarket_name: str) -> Optional[Category]:
+                             supermarket: Supermarket) -> Optional[Category]:
     """
     fetch a category from categories table which was updated
     more than 7 days ago or hasn't been scraped at all in a random order
     :param connection: MySQL connection
-    :param supermarket_name: name of the supermarket
+    :param supermarket: Supermarket object
     :return: Category object
     """
     today = get_today_date()
@@ -74,44 +78,45 @@ def fetch_category_to_scrape(connection: MySQLConnectionAbstract,
         cur.execute(
             """
             SELECT 
-                c.supermarket_id, c.category_id, c.name, c.last_scraped_on
-            FROM categories c JOIN supermarkets s USING (supermarket_id)
-                WHERE
-                s.name = %(supermarket_name)s AND
+                supermarket_id, category_id, category_code, 
+                name, last_scraped_on
+            FROM categories
+            WHERE
+                supermarket_id = %(supermarket_id)s AND
                 (last_scraped_on < DATE_SUB(%(today)s, INTERVAL 6 DAY)
                  OR last_scraped_on IS NULL)
             ORDER BY RAND()
             LIMIT 1;
             """,
-            ({'today': today, 'supermarket_name': supermarket_name})
+            ({'today': today, 'supermarket_id': supermarket.supermarket_id})
         )
         result = cur.fetchone()
         return Category(**result) if result else None
 
 
 def fetch_supermarket_categories(
-        connection: MySQLConnectionAbstract, name: str) -> list[Category]:
+        connection: MySQLConnectionAbstract,
+        supermarket: Supermarket) -> list[Category]:
     """
-    fetches supermarket's categories using its name from the database
+    fetches supermarket's categories from the database
     :param connection: MySQL connection
-    :param str name: name of the supermarket
+    :param supermarket:Supermarket object
     :returns: list of Category objects
     """
     with connection.cursor(dictionary=True) as cur:
         cur.execute(
-            'SELECT supermarket_id, category_id, c.name AS name,'
+            'SELECT supermarket_id, category_id, category_code, c.name AS name,'
             ' c.last_scraped_on'
             ' FROM categories c JOIN supermarkets s USING (supermarket_id)'
             ' WHERE s.name=%s',
-            (name,)
+            (supermarket.name,)
         )
         return [Category(**res) for res in cur.fetchall()]
 
 
 def upsert_categories(
     connection: MySQLConnectionAbstract,
-    categories: list[Category],
-    supermarket: str,
+    categories: list[Category]
 ) -> None:
     """
     upserts new categories into the table.
@@ -120,15 +125,12 @@ def upsert_categories(
     :param categories: list of Category objects
     :param supermarket: name of the supermarket
     """
-    supermarket_id = fetch_supermarket_id(connection, name=supermarket)
-    for category in categories:
-        category.supermarket_id = supermarket_id
 
     with connection.cursor() as cursor:
         cursor.executemany(
             'INSERT IGNORE INTO categories '
-            '(supermarket_id, category_id, name) VALUES'
-            '(%(supermarket_id)s, %(category_id)s, %(name)s);',
+            '(supermarket_id, category_code, name) VALUES '
+            '(%(supermarket_id)s, %(category_code)s, %(name)s);',
            [category.model_dump() for category in categories]
         )
         connection.commit()
@@ -137,19 +139,22 @@ def upsert_categories(
 
 def fetch_products_ids(
         connection: MySQLConnectionAbstract,
-        supermarket_id: int, category_id: str) -> list[str]:
+        supermarket_id: int, category_code: str) -> list[str]:
     """
-    fetches ids of all products with supermarket_id and category_id
+    fetches product codes of all products with supermarket_id and category_code
     :param connection: MySQL connection
     :param supermarket_id: id of the supermarket
-    :param category_id: id of the category
-    :return: list of products' ids
+    :param category_code: code of the category
+    :return: list of products' codes
     """
     with connection.cursor() as cursor:
         cursor.execute(
-            'SELECT product_id FROM products '
-            'WHERE supermarket_id=%s AND category_id=%s;',
-            (supermarket_id, category_id)
+            """
+            SELECT product_code
+            FROM products p JOIN categories c USING (category_id)
+            WHERE c.supermarket_id=%s AND c.category_code=%s;
+            """,
+            (supermarket_id, category_code)
         )
         return [res[0] for res in cursor.fetchall()]
 
@@ -186,8 +191,8 @@ def insert_new_products(
         cursor.executemany(
            """
            INSERT INTO products VALUES
-              (%(product_id)s, %(supermarket_id)s, %(category_id)s, %(name)s, 
-              %(created_on)s)
+              (%(product_id)s, %(product_code)s, %(category_id)s,
+               %(name)s, %(created_on)s)
            """, to_insert.model_dump()['items']
         )
         connection.commit()
@@ -207,7 +212,7 @@ def insert_product_infos(
         cursor.executemany(
             """
             INSERT IGNORE INTO product_info VALUES
-               (%(product_id)s, %(supermarket_id)s, %(observed_on)s, %(price)s, 
+               (%(product_id)s, %(observed_on)s, %(price)s, 
                %(discounted_price)s, %(rating)s, %(rates_count)s, %(unit)s)
             """, [info.model_dump() for info in product_infos]
         )

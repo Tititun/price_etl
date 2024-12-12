@@ -28,7 +28,7 @@ def request_data(category: Category) -> RequestData:
     }
     response = requests.get(
         f'https://5d.5ka.ru/api/catalog/v1/stores/{SUPERMARKET_CODE}/'
-        f'categories/{category.category_id}/products',
+        f'categories/{category.category_code}/products',
         params=params,
         headers=headers,
     )
@@ -42,27 +42,27 @@ def request_data(category: Category) -> RequestData:
                      f'status code {response.status_code}')
 
 
-def parse_data(request_data: RequestData) -> ProductList:
+def parse_data(request_data: RequestData, category: Category) -> ProductList:
     """
     takes in the data returned by request to the server and parses all the
     products with their prices from it
     :param raw_data: data as a RequestData object
+    :param category: Category of to-be-parsed items
     :return: ProductList - validated list of Product objects
     """
     product_list = ProductList(items=[])
     for record in request_data.data["products"]:
-        product_id = str(record['plu'])
+        product_code = str(record['plu'])
         product = Product(
-            product_id=product_id,
-            supermarket_id=request_data.category.supermarket_id,
-            category_id=request_data.category.category_id,
+            product_id=None,
+            product_code=product_code,
+            category_id=category.category_id,
             name=record['name'],
             created_on=request_data.date
         )
         rating_info = record.get('rating') or {}
         product_info = ProductInfo(
-            product_id=product_id,
-            supermarket_id=request_data.category.supermarket_id,
+            product_id=None,
             observed_on=request_data.date,
             price=parse_price(record['prices'], 'regular'),
             discounted_price=parse_price(record['prices'], 'discount'),

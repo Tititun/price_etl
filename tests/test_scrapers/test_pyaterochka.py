@@ -10,9 +10,10 @@ import pytest
 import requests
 
 from scrapers.common import (Category, Product, ProductInfo, ProductList,
-                             RequestData, get_today_date)
+                             RequestData, Supermarket, get_today_date)
 from scrapers.pyaterochka.catalogue import parse_categories
 from scrapers.pyaterochka.scraper import parse_data, request_data
+from scrapers.pyaterochka.common import SUPERMARKET_NAME
 
 
 # path to example catalogue and product list data
@@ -38,16 +39,17 @@ def test_parse_categories(example_catalogue):
     test that correct categories were parsed from the file
     """
     expected_result = [
-        Category(supermarket_id=None, category_id='73C20455',
-                 name='Готовим оливье'),
-        Category(supermarket_id=None, category_id='73C20456',
-                 name='Запекаем в духовке'),
-        Category(supermarket_id=None, category_id='73C10301',
-                 name='Горячие напитки'),
-        Category(supermarket_id=None, category_id='73C9714',
-                 name='Блинчики, сырники и каши'),
+        Category(supermarket_id=1, category_id=None,
+                 category_code='73C20455', name='Готовим оливье'),
+        Category(supermarket_id=1, category_id=None,
+                 category_code='73C20456', name='Запекаем в духовке'),
+        Category(supermarket_id=1, category_id=None,
+                 category_code='73C10301', name='Горячие напитки'),
+        Category(supermarket_id=1, category_id=None,
+                 category_code='73C9714', name='Блинчики, сырники и каши'),
     ]
-    parsed_categories = parse_categories(example_catalogue)
+    supermarket=Supermarket(supermarket_id=1, name=SUPERMARKET_NAME)
+    parsed_categories = parse_categories(example_catalogue, supermarket)
     assert expected_result == parsed_categories
 
 
@@ -71,7 +73,8 @@ def category():
     """
     return Category(
         supermarket_id=1,
-        category_id="someID",
+        category_id=1,
+        category_code="someID",
         name="Some name",
         last_scraped_on=None
     )
@@ -116,14 +119,13 @@ def test_parse_data(category, example_product_list):
     expected_result = ProductList(
         items=[
             Product(
-                product_id='4133363',
-                supermarket_id=1,
-                category_id='someID',
+                product_id=None,
+                product_code='4133363',
+                category_id=1,
                 name='Шоколадный батончик Snickers Super 80г',
                 created_on=today,
                 product_info=ProductInfo(
-                    product_id='4133363',
-                    supermarket_id=1,
+                    product_id=None,
                     observed_on=today,
                     price=Decimal("69.99"),
                     discounted_price=None,
@@ -133,14 +135,13 @@ def test_parse_data(category, example_product_list):
                 )
             ),
             Product(
-                product_id='2138420',
-                supermarket_id=1,
-                category_id='someID',
+                product_id=None,
+                product_code='2138420',
+                category_id=1,
                 name='Шоколадный батончик Twix Xtra с карамелью 82г',
                 created_on=today,
                 product_info=ProductInfo(
-                    product_id='2138420',
-                    supermarket_id=1,
+                    product_id=None,
                     observed_on=today,
                     price=Decimal("67.99"),
                     discounted_price=Decimal("59.99"),
@@ -151,4 +152,6 @@ def test_parse_data(category, example_product_list):
             ),
         ]
     )
-    assert parse_data(data_from_request) == expected_result
+    category = Category(supermarket_id=1, category_id=1,
+                        category_code='test_code', name='test_name')
+    assert parse_data(data_from_request, category) == expected_result

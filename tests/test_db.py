@@ -13,14 +13,14 @@ import pytest
 from db.mysql_functions import (fetch_products_ids,
                                 fetch_category_to_scrape,
                                 fetch_supermarket_categories,
-                                fetch_supermarket_id,
-                                fetch_supermarket_name,
+                                fetch_supermarket_by_id,
+                                fetch_supermarket_by_name,
                                 insert_new_products,
                                 insert_product_infos,
                                 upsert_categories,
                                 update_existent_products)
 from scrapers.common import (Category, Product, ProductInfo, ProductList,
-                             get_today_date)
+                             Supermarket, get_today_date)
 
 load_dotenv()
 today = get_today_date()
@@ -32,18 +32,18 @@ setup_queries = [
     ' (2, "Second Supermarket");',
 
     'INSERT INTO categories '
-    '(supermarket_id, category_id, name, last_scraped_on) '
+    '(category_id, supermarket_id, category_code, name, last_scraped_on) '
     'VALUES '
-    '(1, "test_id_1", "First Category", null),'
-    f'(1, "test_id_2", "Second Category", "{today}"),'
-    f'(2, "test_id_3", "Third Category", "{ten_days_ago}");',
+    '(1, 1, "test_id_1", "First Category", null),'
+    f'(2, 1, "test_id_2", "Second Category", "{today}"),'
+    f'(3, 2, "test_id_3", "Third Category", "{ten_days_ago}");',
     
     'INSERT INTO products '
-    '(product_id, supermarket_id, category_id, name, created_on) '
+    '(product_id, product_code, category_id, name, created_on) '
     'VALUES '
-    '("product_id_1", 1, "test_id_1", "Product 1", "2020-01-01"),'
-    '("product_id_2", 1, "test_id_1", "Product 2", "2020-01-02"),'
-    '("product_id_3", 1, "test_id_2", "Product 3", "2020-01-03")'
+    '(1, "product_id_1", 1, "Product 1", "2020-01-01"),'
+    '(2, "product_id_2", 1, "Product 2", "2020-01-02"),'
+    '(3, "product_id_3", 2, "Product 3", "2020-01-03")'
 ]
 
 
@@ -78,27 +78,30 @@ def db_connection():
     connection.close()
 
 
-def test_fetch_supermarket_id_fetches(db_connection):
-    """test if fetch_supermarket_id returns id for an existent supermarket"""
-    result = fetch_supermarket_id(db_connection, 'First Supermarket')
-    assert result == 1
-
-
-def test_fetch_supermarket_id_fetches_none(db_connection):
+def test_fetch_supermarket_by_name_fetches(db_connection):
     """
-    test if fetch_supermarket_id returns None
+    test if fetch_supermarket_by_name returns correct Supermarket
+    """
+    name = 'First Supermarket'
+    result = fetch_supermarket_by_name(db_connection, name)
+    assert result == Supermarket(supermarket_id=1, name=name)
+
+
+def test_fetch_supermarket_by_name_fetches_none(db_connection):
+    """
+    test if fetch_supermarket_by_name returns None
     for a non-existent supermarket
     """
-    result = fetch_supermarket_id(db_connection, 'Imaginary Supermarket')
+    result = fetch_supermarket_by_name(db_connection, 'Imaginary Supermarket')
     assert result is None
 
 
-def test_fetch_supermarket_name(db_connection):
+def test_fetch_supermarket_by_id(db_connection):
     """
-    test if fetch_supermarket_name returns name for an existent supermarket
+    test if fetch_supermarket_by_id returns name for an existent supermarket
     """
-    result = fetch_supermarket_name(db_connection, 1)
-    assert result == 'First Supermarket'
+    result = fetch_supermarket_by_id(db_connection, 1)
+    assert result == Supermarket(supermarket_id=1, name='First Supermarket')
 
 
 def test_fetch_supermarket_categories(db_connection):
@@ -106,11 +109,12 @@ def test_fetch_supermarket_categories(db_connection):
     test if fetch_supermarket_categories returns a list of expected Category
     objects
     """
-    result = fetch_supermarket_categories(db_connection, 'First Supermarket')
+    supermarket = Supermarket(supermarket_id=1, name='First Supermarket')
+    result = fetch_supermarket_categories(db_connection, supermarket)
     expected = [
-        Category(supermarket_id=1, category_id='test_id_1',
+        Category(supermarket_id=1, category_id=1, category_code='test_id_1',
                  name='First Category'),
-        Category(supermarket_id=1, category_id='test_id_2',
+        Category(supermarket_id=1, category_id=2, category_code='test_id_2',
                  name='Second Category', last_scraped_on=today),
     ]
     assert result == expected
@@ -122,26 +126,25 @@ def test_upsert_categories_new_categories(db_connection):
     """
     categories_to_insert = [
         Category(
-            supermarket_id=None, category_id='test_id_4',
+            supermarket_id=2, category_id=None, category_code='test_id_4',
             name='Fourth Category'),
         Category(
-            supermarket_id=None, category_id='test_id_5',
+            supermarket_id=2, category_id=None, category_code='test_id_5',
             name='Fifth Category'),
     ]
     expected_result = [
         Category(
-            supermarket_id=2, category_id='test_id_3',
+            supermarket_id=2, category_id=3, category_code='test_id_3',
             name='Third Category', last_scraped_on=ten_days_ago),
         Category(
-            supermarket_id=2, category_id='test_id_4',
+            supermarket_id=2, category_id=4, category_code='test_id_4',
             name='Fourth Category'),
         Category(
-            supermarket_id=2, category_id='test_id_5',
+            supermarket_id=2, category_id=5, category_code='test_id_5',
             name='Fifth Category'),
     ]
-    supermarket = "Second Supermarket"
-    upsert_categories(db_connection, categories_to_insert,
-                      supermarket=supermarket)
+    supermarket = Supermarket(supermarket_id=2, name="Second Supermarket")
+    upsert_categories(db_connection, categories_to_insert)
     categories = fetch_supermarket_categories(db_connection, supermarket)
     assert categories == expected_result
 
@@ -150,27 +153,18 @@ def test_upsert_categories_no_duplicates(db_connection):
     """
     test that categories with duplicate category_id are not inserted
     """
-    categories_to_insert = [
+    categories = [
         Category(
-            supermarket_id=None, category_id='test_id_3',
+            supermarket_id=2, category_id=3, category_code='test_id_3',
             name='Third Category Different', last_scraped_on=ten_days_ago),
         Category(
-            supermarket_id=None, category_id='test_id_4',
+            supermarket_id=2, category_id=4, category_code='test_id_4',
             name='Fourth Category'),
     ]
-    expected_result = [
-        Category(
-            supermarket_id=2, category_id='test_id_3',
-            name='Third Category', last_scraped_on=ten_days_ago),
-        Category(
-            supermarket_id=2, category_id='test_id_4',
-            name='Fourth Category'),
-    ]
-    supermarket = "Second Supermarket"
-    upsert_categories(db_connection, categories_to_insert,
-                      supermarket=supermarket)
+    supermarket = Supermarket(supermarket_id=2, name="Second Supermarket")
+    upsert_categories(db_connection, categories)
     categories = fetch_supermarket_categories(db_connection, supermarket)
-    assert categories == expected_result
+    assert categories == categories
 
 
 def test_fetch_category_to_scrape_none(db_connection):
@@ -179,12 +173,14 @@ def test_fetch_category_to_scrape_none(db_connection):
     last_scraped_on = None
     """
     expected_result = Category(
+        category_id=1,
         supermarket_id=1,
-        category_id='test_id_1',
+        category_code='test_id_1',
         name='First Category',
         last_scraped_on=None
     )
-    result = fetch_category_to_scrape(db_connection, 'First Supermarket')
+    supermarket = Supermarket(supermarket_id=1, name='First Supermarket')
+    result = fetch_category_to_scrape(db_connection, supermarket)
     assert expected_result == result
 
 
@@ -194,12 +190,14 @@ def test_fetch_category_to_scrape_fetches(db_connection):
     last_scraped_on with scraped_on more than 7 days from now in the past
     """
     expected_result = Category(
+        category_id=3,
         supermarket_id=2,
-        category_id='test_id_3',
+        category_code='test_id_3',
         name='Third Category',
         last_scraped_on=ten_days_ago
     )
-    result = fetch_category_to_scrape(db_connection, 'Second Supermarket')
+    supermarket = Supermarket(supermarket_id=2, name='Second Supermarket')
+    result = fetch_category_to_scrape(db_connection, supermarket)
     assert expected_result == result
 
 
@@ -222,21 +220,42 @@ def starter_products() -> ProductList:
     return ProductList(
         items=[
             Product(
-                product_id='product_id_1',
+                product_id=1,
+                product_code='product_id_1',
                 supermarket_id=1,
-                category_id='test_id_1',
+                category_id=1,
                 name='Product 1',
                 created_on=datetime.date(year=2020, month=1, day=1),
             ),
             Product(
-                product_id='product_id_2',
+                product_id=2,
+                product_code='product_id_2',
                 supermarket_id=1,
-                category_id='test_id_1',
+                category_id=1,
                 name='Product 2',
                 created_on=datetime.date(year=2020, month=1, day=2),
             )
         ]
     )
+
+
+def test_update_existent_products(db_connection, starter_products):
+    """
+    test that update_existent_products updates category_id and name of products
+    """
+    starter_products.items[0].name = 'Product X'
+    starter_products.items[1].category_id = 2
+    update_existent_products(db_connection, starter_products)
+    with db_connection.cursor() as cursor:
+        cursor.execute("""
+                        SELECT p.category_id, p.name
+                        FROM products p JOIN categories c USING (category_id)
+                        WHERE p.product_id <= 2 AND c.supermarket_id = 1
+                        ORDER BY category_id
+                       """)
+        result = cursor.fetchall()
+    assert result == [(1, 'Product X'),
+                      (2, 'Product 2')]
 
 
 @pytest.fixture
@@ -248,38 +267,23 @@ def new_products() -> ProductList:
     return ProductList(
         items=[
             Product(
-                product_id='product_id_4',
+                product_id=None,
+                product_code='product_id_4',
                 supermarket_id=1,
-                category_id='test_id_2',
+                category_id=2,
                 name='Product 4',
                 created_on=datetime.date(year=2020, month=1, day=5),
             ),
             Product(
-                product_id='product_id_5',
+                product_id=None,
+                product_code='product_id_5',
                 supermarket_id=1,
-                category_id='test_id_2',
+                category_id=2,
                 name='Product 5',
                 created_on=datetime.date(year=2020, month=1, day=5),
             )
         ]
     )
-
-
-def test_update_existent_products(db_connection, starter_products):
-    """
-    test that update_existent_products updates category_id and name of products
-    """
-    starter_products.items[0].name = 'Product X'
-    starter_products.items[1].category_id = 'test_id_2'
-    update_existent_products(db_connection, starter_products)
-    with db_connection.cursor() as cursor:
-        cursor.execute('SELECT category_id, name FROM products '
-                       'WHERE product_id '
-                       'IN ("product_id_1", "product_id_2") AND '
-                       'supermarket_id = 1 ORDER BY category_id')
-        result = cursor.fetchall()
-    assert result == [('test_id_1', 'Product X'),
-                      ('test_id_2', 'Product 2')]
 
 
 def test_insert_new_products(db_connection, new_products):
@@ -291,19 +295,17 @@ def test_insert_new_products(db_connection, new_products):
         cursor.execute(
             """
                 SELECT
-                    product_id, supermarket_id, category_id, name, created_on
-                FROM products
-                WHERE supermarket_id=1 AND category_id='test_id_2'
+                    p.product_id, p.product_code, p.category_id,
+                    p.name, p.created_on
+                FROM products p JOIN categories c USING (category_id)
+                WHERE c.supermarket_id=1 AND p.category_id=2;
             """)
         result = cursor.fetchall()
 
     expected_result = [
-        ('product_id_3', 1, 'test_id_2',
-         'Product 3', datetime.date(2020, 1, 3)),
-        ('product_id_4', 1, 'test_id_2',
-         'Product 4', datetime.date(2020, 1, 5)),
-        ('product_id_5', 1, 'test_id_2', 'Product 5',
-         datetime.date(2020, 1, 5)),
+        (3, 'product_id_3', 2, 'Product 3', datetime.date(2020, 1, 3)),
+        (4, 'product_id_4', 2, 'Product 4', datetime.date(2020, 1, 5)),
+        (5, 'product_id_5', 2, 'Product 5', datetime.date(2020, 1, 5)),
     ]
     assert result == expected_result
 
@@ -312,8 +314,7 @@ def test_insert_new_products(db_connection, new_products):
 def new_product_infos():
     return [
        ProductInfo(
-           product_id='product_id_1',
-           supermarket_id=1,
+           product_id=1,
            observed_on=datetime.date(year=2020, month=1, day=10),
            price=Decimal('149.99'),
            discounted_price=None,
@@ -322,8 +323,7 @@ def new_product_infos():
            unit='1 kg'
        ),
        ProductInfo(
-           product_id='product_id_2',
-           supermarket_id=1,
+           product_id=2,
            observed_on=datetime.date(year=2020, month=1, day=10),
            price=Decimal('199.99'),
            discounted_price=Decimal('189.99'),
@@ -343,18 +343,19 @@ def test_insert_product_infos(db_connection, new_product_infos):
         cursor.execute(
             """
                 SELECT
-                    product_id, supermarket_id, observed_on, price,
+                    pi.product_id, observed_on, price,
                     discounted_price, rating, rates_count, unit
-                FROM product_info
-                WHERE supermarket_id=1
+                FROM
+                    product_info pi JOIN products p USING (product_id)
+                    JOIN categories c USING (category_id)
+                WHERE c.supermarket_id=1
                 ORDER BY product_id
             """)
         result = cursor.fetchall()
     expected_result = [
-        ('product_id_1', 1, datetime.date(year=2020, month=1, day=10),
+        (1, datetime.date(year=2020, month=1, day=10),
          Decimal('149.99'), None, Decimal('4.60'), 520, '1 kg'),
-        ('product_id_2', 1, datetime.date(year=2020, month=1, day=10),
+        (2, datetime.date(year=2020, month=1, day=10),
          Decimal('199.99'), Decimal('189.99'), Decimal('4.90'), 800, '2 l'),
     ]
     assert result == expected_result
-

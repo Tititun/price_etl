@@ -7,8 +7,9 @@ import logging
 
 import requests
 
-from db.mysql_functions import mysql_connect, upsert_categories
-from scrapers.common import Category, headers, log_args
+from db.mysql_functions import (mysql_connect,
+                                fetch_supermarket_by_name, upsert_categories)
+from scrapers.common import Category, Supermarket, headers, log_args
 from scrapers.pyaterochka.common import SUPERMARKET_NAME, SUPERMARKET_CODE
 
 logger = logging.getLogger(__name__)
@@ -20,21 +21,26 @@ params = {
 }
 
 
-def parse_categories(json_data: dict) -> list[Category]:
+def parse_categories(
+        json_data: dict, supermarket: Supermarket) -> list[Category]:
     """
     takes json data and looks in it for the categories of the lowest level
     (those that don't have subcategories). There are only two levels
     of categories for this supermarket, so we take all the categories from the
     second level
     :param json_data: data received from the server in main function
+    :param supermarket: supermarket for which we parse categories
     :return: parsed information about categories in a list of Categories
     """
     result_data = []
     for top_category in json_data:
         for subcategory in top_category['subcategories']:
-            result_data.append(Category(supermarket_id=None,
-                                        category_id=subcategory['id'],
-                                        name=subcategory['name']))
+            result_data.append(
+                Category(category_id=None,
+                         supermarket_id=supermarket.supermarket_id,
+                         category_code=subcategory['id'],
+                         name=subcategory['name'])
+            )
     return result_data
 
 
@@ -55,13 +61,15 @@ def main():
                      f' failed with status code {response.status_code}')
         return
 
-    categories = parse_categories(response.json())
-    if not categories:
-        logger.error('No categories have been fetched/parsed.')
-        return
-
     with mysql_connect() as conn:
-        upsert_categories(conn, categories, supermarket=SUPERMARKET_NAME)
+        supermarket = fetch_supermarket_by_name(conn, SUPERMARKET_NAME)
+        categories = parse_categories(response.json(), supermarket)
+
+        if not categories:
+            logger.error('No categories have been fetched/parsed.')
+            return
+
+        upsert_categories(conn, categories)
 
 
 if __name__ == '__main__':

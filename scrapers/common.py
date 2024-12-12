@@ -46,13 +46,20 @@ def parse_price(item: dict, field_name: str) -> Optional[Decimal]:
         return Decimal(str(value))
 
 
+class Supermarket(BaseModel):
+    """class to store supermarket data"""
+    supermarket_id: int
+    name: str
+
+
 class Category(BaseModel):
     """
     this class is used to validate category data which
     is collected by scrapers.
     """
-    supermarket_id: Optional[int]
-    category_id: str
+    category_id: Optional[int]
+    supermarket_id: int
+    category_code: str
     name: str
     last_scraped_on: Optional[datetime.date] = None
 
@@ -61,8 +68,7 @@ class ProductInfo(BaseModel):
     """
     this class represents product info which is associated with a product
     """
-    product_id: str
-    supermarket_id: int
+    product_id: Optional[int]
     observed_on: datetime.date
     price: Optional[Decimal]
     discounted_price: Optional[Decimal]
@@ -75,9 +81,9 @@ class Product(BaseModel):
     """
     this class represents a product
     """
-    product_id: str
-    supermarket_id: int
-    category_id: str
+    product_id: Optional[int]
+    product_code: str
+    category_id: int
     name: str
     created_on: datetime.date
     product_info: Optional[ProductInfo] = None
@@ -89,8 +95,8 @@ class ProductList(BaseModel):
     """
     items: list[Product]
 
-    def get_products_ids(self) -> list[str]:
-        return [product.product_id for product in self.items]
+    def get_products_codes(self) -> list[str]:
+        return [product.product_code for product in self.items]
 
     def __bool__(self):
         return len(self.items) > 0

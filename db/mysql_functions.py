@@ -137,14 +137,13 @@ def upsert_categories(
     return
 
 
-def fetch_products_ids(
+def fetch_products_codes(
         connection: MySQLConnectionAbstract,
-        supermarket_id: int, category_code: str) -> list[str]:
+        category: Category) -> list[str]:
     """
-    fetches product codes of all products with supermarket_id and category_code
+    fetches product codes of all products of the category
     :param connection: MySQL connection
-    :param supermarket_id: id of the supermarket
-    :param category_code: code of the category
+    :param category: Category for which to fetch product codes
     :return: list of products' codes
     """
     with connection.cursor() as cursor:
@@ -154,7 +153,7 @@ def fetch_products_ids(
             FROM products p JOIN categories c USING (category_id)
             WHERE c.supermarket_id=%s AND c.category_code=%s;
             """,
-            (supermarket_id, category_code)
+            (category.supermarket_id, category.category_code)
         )
         return [res[0] for res in cursor.fetchall()]
 
@@ -219,26 +218,51 @@ def insert_product_infos(
         connection.commit()
 
 
+def fetch_product_codes_map(
+        connection: MySQLConnectionAbstract,
+        product_list: ProductList) -> dict[str, int]:
+    """
+    requests product_ids for all the products in product_list and creates
+    a mapping product_code -> product_id
+    :param connection: MySQL connection
+    :param product_list: ProductList
+    :return: dictionary with product_codes as keys, product_ids as values
+    """
+    category_id = product_list.items[0].category_id
+    format_string = ','.join(['%s' for _ in product_list.items])
+    query = f"""
+            SELECT product_code, product_id
+            FROM products
+            WHERE category_id=%s AND product_code IN ({format_string});
+            """
+    with connection.cursor() as cursor:
+        cursor.execute(
+            query, (category_id, *[p.product_code for p in product_list.items])
+        )
+        return {r[0]: r[1] for r in cursor.fetchall()}
+
+
 def upsert_product_list(connection: MySQLConnectionAbstract,
-                        product_list: ProductList) -> None:
+                        product_list: ProductList,
+                        category: Category) -> None:
     """
     updates product's name and category_id if these products already exist
     inserts new products into database if they are new
+    assigns product_ids of corresponded products to product infos
     inserts product_info for each product
     :param connection: MySQL connection
     :param product_list: ProductList
+    :param category: Category of all the products in product_list
     """
-    supermarket_id = product_list.items[0].supermarket_id
-    category_id = product_list.items[0].category_id
 
     conn = mysql_connect()
-    existent_product_ids = fetch_products_ids(conn, supermarket_id, category_id)
+    existent_product_codes = fetch_products_codes(conn, category)
 
     to_insert = ProductList(items=[])
     to_update = ProductList(items=[])
     product_infos = []
     for product in product_list.items:
-        if product.product_id in existent_product_ids:
+        if product.product_code in existent_product_codes:
             to_update.items.append(product)
         else:
             to_insert.items.append(product)
@@ -249,5 +273,4 @@ def upsert_product_list(connection: MySQLConnectionAbstract,
 
 
 if __name__ == '__main__':
-    with mysql_connect() as con:
-        print(fetch_category_to_scrape(con, 'Пятёрочка'))
+    pass

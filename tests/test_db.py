@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 import mysql.connector
 import pytest
 
-from db.mysql_functions import (fetch_products_ids,
+from db.mysql_functions import (fetch_products_codes,
+                                fetch_product_codes_map,
                                 fetch_category_to_scrape,
                                 fetch_supermarket_categories,
                                 fetch_supermarket_by_id,
@@ -201,13 +202,15 @@ def test_fetch_category_to_scrape_fetches(db_connection):
     assert expected_result == result
 
 
-def test_fetch_products_ids(db_connection):
+def test_fetch_products_codes(db_connection):
     """
     test that fetch_products_ids fetches the expected list of product ids for
     a given category
     """
     expected_result = ['product_id_1', 'product_id_2']
-    fetched_results = fetch_products_ids(db_connection, 1, 'test_id_1')
+    category=Category(supermarket_id=1, category_id=1,
+                      category_code='test_id_1', name='First Category')
+    fetched_results = fetch_products_codes(db_connection, category)
     assert fetched_results == expected_result
 
 
@@ -359,3 +362,20 @@ def test_insert_product_infos(db_connection, new_product_infos):
          Decimal('199.99'), Decimal('189.99'), Decimal('4.90'), 800, '2 l'),
     ]
     assert result == expected_result
+
+
+def test_fetch_product_ids(db_connection, starter_products):
+    """
+    test that fetch_product_codes_map return correct mapping of
+    product codes to product ids
+    """
+    for product in starter_products.items:
+        product.product_id = None
+
+    expected_result = {
+        'product_id_1': 1,
+        'product_id_2': 2
+    }
+    result = fetch_product_codes_map(db_connection, starter_products)
+    assert expected_result == result
+

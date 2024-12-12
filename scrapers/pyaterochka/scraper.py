@@ -46,7 +46,7 @@ def parse_data(request_data: RequestData, category: Category) -> ProductList:
     """
     takes in the data returned by request to the server and parses all the
     products with their prices from it
-    :param raw_data: data as a RequestData object
+    :param request_data: data as a RequestData object
     :param category: Category of to-be-parsed items
     :return: ProductList - validated list of Product objects
     """

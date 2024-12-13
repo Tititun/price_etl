@@ -20,6 +20,7 @@ from db.mysql_functions import (fetch_products_codes,
                                 insert_product_infos,
                                 upsert_categories,
                                 upsert_product_list,
+                                update_category_last_scraped_on,
                                 update_existent_products)
 from scrapers.common import (Category, Product, ProductInfo, ProductList,
                              Supermarket, get_today_date)
@@ -454,7 +455,18 @@ def upsert_list():
     return ProductList(items=items)
 
 
-def test_upsert_product_list(db_connection, upsert_list):
+@pytest.fixture
+def category():
+    """returns the first Category from test_database"""
+    return Category(
+        category_id=1,
+        supermarket_id=1,
+        category_code='test_id_1',
+        name='First Category'
+    )
+
+
+def test_upsert_product_list(db_connection, upsert_list, category):
     """
     test that upsert_product_list upserts the upsert_list correctly
     which includes:
@@ -462,12 +474,6 @@ def test_upsert_product_list(db_connection, upsert_list):
      -updating existent products' info
      -inserting new price infos
     """
-    category = Category(
-        category_id=1,
-        supermarket_id=1,
-        category_code='test_id_1',
-        name='First Category'
-    )
     upsert_product_list(db_connection, upsert_list, category)
     with db_connection.cursor() as cursor:
         cursor.execute(
@@ -504,13 +510,37 @@ def test_upsert_product_list(db_connection, upsert_list):
     assert result == expected_result
 
 
-def test_upsert_product_list_returns_date(db_connection, upsert_list):
-    category = Category(
-        category_id=1,
-        supermarket_id=1,
-        category_code='test_id_1',
-        name='First Category'
-    )
+def test_upsert_product_list_returns_date(db_connection, upsert_list, category):
+    """
+    test that upsert_product_list returns a date of upserted products
+    """
     returned_date = upsert_product_list(db_connection, upsert_list, category)
     expected_date = datetime.date(year=2021, month=1, day=1)
     assert returned_date == expected_date
+
+
+def test_update_category_last_scraped_on(db_connection, category):
+    """
+    test that update_category_last_scraped_on updates the last_scraped_on
+    of the category in the database
+    """
+    date = datetime.date(2021, 5, 5)
+    update_category_last_scraped_on(db_connection, category, date)
+    with db_connection.cursor() as cursor:
+        cursor.execute("""
+                       SELECT last_scraped_on
+                       FROM categories 
+                       WHERE category_id=%s
+                       """, (category.category_id,))
+        last_scraped_on = cursor.fetchone()[0]
+    assert last_scraped_on == date
+
+
+def test_update_category_last_scraped_on_fails(db_connection, category):
+    """
+    test that update_category_last_scraped_on raises ValueError when we try
+    to set a date from the future
+    """
+    date = datetime.date(2100, 5, 5)
+    with pytest.raises(ValueError):
+        update_category_last_scraped_on(db_connection, category, date)

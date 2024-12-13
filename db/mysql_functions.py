@@ -274,5 +274,28 @@ def upsert_product_list(connection: MySQLConnectionAbstract,
     return product_list.items[0].product_info.observed_on
 
 
+def update_category_last_scraped_on(
+        connection: MySQLConnectionAbstract,
+        category: Category,
+        date: datetime.date) -> None:
+    """
+    updates last_scraped_on of category to date
+    :param connection: MySQL connection
+    :param category: Category
+    :param date: datetime date
+    """
+    today = get_today_date()
+    date_dif = today - date
+    if date_dif.days < 1:
+        raise ValueError('Can\'t assign a date from the future')
+    with connection.cursor() as cursor:
+        cursor.execute("""
+                       UPDATE categories
+                       SET last_scraped_on=%s
+                       WHERE category_id=%s
+                       """,
+                       (date, category.category_id))
+
+
 if __name__ == '__main__':
     pass

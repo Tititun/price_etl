@@ -6,7 +6,7 @@ from decimal import Decimal
 
 import pytest
 
-from scrapers.common import parse_price, Product, ProductList
+from scrapers.common import parse_price, Product, ProductInfo, ProductList
 
 
 def test_parse_price_none():
@@ -19,27 +19,85 @@ def test_parse_price_decimal():
     assert parse_price({'price': 12.99}, 'price') == Decimal('12.99')
 
 
-@pytest.fixture
-def product_list():
+def make_products(without_ids: bool=False):
+    product_id_1 = 1 if not without_ids else None
+    product_id_2 = 2 if not without_ids else None
     return ProductList(
         items=[
-            Product(product_id=1,
+            Product(product_id=product_id_1,
                     product_code='product_id_1',
                     category_id=1,
                     name='Product 1',
-                    created_on=datetime.date(2000, 1, 1)),
-            Product(product_id=2,
+                    created_on=datetime.date(2000, 1, 1),
+                    product_info=ProductInfo(
+                        product_id=product_id_1,
+                        observed_on=datetime.date(year=2020, month=1, day=10),
+                        price=Decimal('150.99'),
+                        discounted_price=None,
+                        rating=Decimal('4.60'),
+                        rates_count=520,
+                        unit='1 kg')
+                    ),
+            Product(product_id=product_id_2,
                     product_code='product_id_2',
                     category_id=1,
                     name='Product 2',
-                    created_on=datetime.date(2000, 1, 1))
+                    created_on=datetime.date(2000, 1, 1),
+                    product_info=ProductInfo(
+                        product_id=product_id_2,
+                        observed_on=datetime.date(year=2020, month=1, day=10),
+                        price=Decimal('200.00'),
+                        discounted_price=None,
+                        rating=Decimal('4.90'),
+                        rates_count=1000,
+                        unit='1 l')
+                    )
         ]
     )
 
 
-def test_product_list_get_products_ids(product_list):
+@pytest.fixture
+def product_list_with_ids():
+    return make_products()
+
+
+@pytest.fixture
+def product_list_without_ids():
+    return make_products(without_ids=True)
+
+
+def test_product_list_get_products_ids(product_list_with_ids):
     """
     test that get_products_ids method of ProductList class returns a list
     of expected ids
     """
-    assert product_list.get_products_codes() == ['product_id_1', 'product_id_2']
+    result = product_list_with_ids.get_products_codes()
+    assert result == ['product_id_1', 'product_id_2']
+
+
+def test_product_list_update_product_ids_updates(
+        product_list_without_ids, product_list_with_ids):
+    """
+    test that update_product_ids method of product_list correctly updates
+    products' ids from a provided code_map
+    """
+    code_map = {
+        'product_id_1': 1,
+        'product_id_2': 2
+    }
+    product_list_without_ids.update_product_ids(code_map)
+    assert product_list_without_ids == product_list_with_ids
+
+
+def test_product_list_update_product_ids_raises(product_list_without_ids):
+    """
+    test that update_product_ids method of product_list raises KeyError
+    when there is no corresponding product_id for each product_code
+    in a provided code_map
+    """
+    code_map = {
+        'product_id_1': 1
+    }
+    with pytest.raises(KeyError):
+        product_list_without_ids.update_product_ids(code_map)
+

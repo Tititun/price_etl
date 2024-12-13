@@ -98,6 +98,19 @@ class ProductList(BaseModel):
     def get_products_codes(self) -> list[str]:
         return [product.product_code for product in self.items]
 
+    def update_product_ids(self, code_map: dict[str, int]) -> None:
+        """
+        assign product_id from code_map to each product and product info
+        in items
+        """
+        for product in self.items:
+            code = product.product_code
+            product_id = code_map.get(code)
+            if not product_id:
+                raise KeyError(f'No product_id found for {code}')
+            product.product_id = product_id
+            product.product_info.product_id = product_id
+
     def __bool__(self):
         return len(self.items) > 0
 

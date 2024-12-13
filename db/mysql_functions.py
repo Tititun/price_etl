@@ -114,10 +114,8 @@ def fetch_supermarket_categories(
         return [Category(**res) for res in cur.fetchall()]
 
 
-def upsert_categories(
-        connection: MySQLConnectionAbstract,
-        categories: list[Category]
-) -> None:
+def upsert_categories(connection: MySQLConnectionAbstract,
+                      categories: list[Category]) -> None:
     """
     upserts new categories into the table.
     new values are inserted, existent records remain untouched (no duplicates)
@@ -156,10 +154,8 @@ def fetch_products_codes(
         return [res[0] for res in cursor.fetchall()]
 
 
-def update_existent_products(
-        connection: MySQLConnectionAbstract,
-        to_update: ProductList
-) -> None:
+def update_existent_products(connection: MySQLConnectionAbstract,
+                             to_update: ProductList) -> None:
     """
     updates existent products in the database - their category_id and name
     :param connection: MySQL connection
@@ -178,10 +174,8 @@ def update_existent_products(
         connection.commit()
 
 
-def insert_new_products(
-        connection: MySQLConnectionAbstract,
-        to_insert: ProductList
-) -> None:
+def insert_new_products(connection: MySQLConnectionAbstract,
+                        to_insert: ProductList) -> None:
     """
     inserts new products into the database
     :param connection: MySQL connection
@@ -199,10 +193,8 @@ def insert_new_products(
         connection.commit()
 
 
-def insert_product_infos(
-        connection: MySQLConnectionAbstract,
-        product_infos: list[ProductInfo]
-) -> None:
+def insert_product_infos(connection: MySQLConnectionAbstract,
+                         product_infos: list[ProductInfo]) -> None:
     """
     inserts product information into product_info table
     duplicates on (product_id, observed_on) will not be inserted

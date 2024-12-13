@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import mysql.connector
 from mysql.connector.abstracts import MySQLConnectionAbstract
 
-from scrapers.common import (Category, Product, ProductInfo,
+from scrapers.common import (Category, ProductInfo,
                              ProductList, Supermarket, get_today_date)
 
 load_dotenv()
@@ -26,7 +26,7 @@ def mysql_connect() -> MySQLConnectionAbstract:
     return connection
 
 
-def fetch_supermarket_by_name(connection: MySQLConnectionAbstract, name: str)\
+def fetch_supermarket_by_name(connection: MySQLConnectionAbstract, name: str) \
         -> Optional[Supermarket]:
     """
     fetches a supermarket's id by its name from the database
@@ -45,7 +45,7 @@ def fetch_supermarket_by_name(connection: MySQLConnectionAbstract, name: str)\
         return Supermarket(supermarket_id=result[0], name=name)
 
 
-def fetch_supermarket_by_id(connection: MySQLConnectionAbstract, id_: int)\
+def fetch_supermarket_by_id(connection: MySQLConnectionAbstract, id_: int) \
         -> Optional[Supermarket]:
     """
     fetches a supermarket's name by its id from the database
@@ -115,15 +115,14 @@ def fetch_supermarket_categories(
 
 
 def upsert_categories(
-    connection: MySQLConnectionAbstract,
-    categories: list[Category]
+        connection: MySQLConnectionAbstract,
+        categories: list[Category]
 ) -> None:
     """
     upserts new categories into the table.
     new values are inserted, existent records remain untouched (no duplicates)
     :param connection:  MySQL connection
     :param categories: list of Category objects
-    :param supermarket: name of the supermarket
     """
 
     with connection.cursor() as cursor:
@@ -131,7 +130,7 @@ def upsert_categories(
             'INSERT IGNORE INTO categories '
             '(supermarket_id, category_code, name) VALUES '
             '(%(supermarket_id)s, %(category_code)s, %(name)s);',
-           [category.model_dump() for category in categories]
+            [category.model_dump() for category in categories]
         )
         connection.commit()
     return
@@ -150,10 +149,9 @@ def fetch_products_codes(
         cursor.execute(
             """
             SELECT product_code
-            FROM products p JOIN categories c USING (category_id)
-            WHERE c.supermarket_id=%s AND c.category_code=%s;
+            FROM products WHERE category_id=%s;
             """,
-            (category.supermarket_id, category.category_code)
+            (category.category_id,)
         )
         return [res[0] for res in cursor.fetchall()]
 
@@ -161,7 +159,7 @@ def fetch_products_codes(
 def update_existent_products(
         connection: MySQLConnectionAbstract,
         to_update: ProductList
-        ) -> None:
+) -> None:
     """
     updates existent products in the database - their category_id and name
     :param connection: MySQL connection
@@ -169,10 +167,13 @@ def update_existent_products(
     """
     with connection.cursor() as cursor:
         cursor.executemany(
-           'UPDATE products '
-           'SET category_id=%(category_id)s, name=%(name)s '
-           'WHERE product_id=%(product_id)s',
-            to_update.model_dump()['items']
+            """UPDATE products
+              SET name=%(name)s
+              WHERE product_code=%(product_code)s 
+                    AND category_id=%(category_id)s
+           """,
+            to_update.model_dump(
+                exclude={'items': {'__all__': {'product_info'}}})['items']
         )
         connection.commit()
 
@@ -180,7 +181,7 @@ def update_existent_products(
 def insert_new_products(
         connection: MySQLConnectionAbstract,
         to_insert: ProductList
-        ) -> None:
+) -> None:
     """
     inserts new products into the database
     :param connection: MySQL connection
@@ -188,11 +189,12 @@ def insert_new_products(
     """
     with connection.cursor() as cursor:
         cursor.executemany(
-           """
+            """
            INSERT INTO products VALUES
               (%(product_id)s, %(product_code)s, %(category_id)s,
                %(name)s, %(created_on)s)
-           """, to_insert.model_dump()['items']
+           """, to_insert.model_dump(
+                exclude={'items': {'__all__': {'product_info'}}})['items']
         )
         connection.commit()
 
@@ -200,7 +202,7 @@ def insert_new_products(
 def insert_product_infos(
         connection: MySQLConnectionAbstract,
         product_infos: list[ProductInfo]
-    ) -> None:
+) -> None:
     """
     inserts product information into product_info table
     duplicates on (product_id, observed_on) will not be inserted
@@ -255,21 +257,24 @@ def upsert_product_list(connection: MySQLConnectionAbstract,
     :param category: Category of all the products in product_list
     """
 
-    conn = mysql_connect()
-    existent_product_codes = fetch_products_codes(conn, category)
+    existent_product_codes = fetch_products_codes(connection, category)
 
     to_insert = ProductList(items=[])
     to_update = ProductList(items=[])
-    product_infos = []
     for product in product_list.items:
+        product.category_id = category.category_id
         if product.product_code in existent_product_codes:
             to_update.items.append(product)
         else:
             to_insert.items.append(product)
-        product_infos.append(product.product_info)
 
     update_existent_products(connection, to_update)
     insert_new_products(connection, to_insert)
+
+    codes_map = fetch_product_codes_map(connection, product_list)
+    product_list.update_product_ids(codes_map)
+    product_infos = [p.product_info for p in product_list.items]
+    insert_product_infos(connection, product_infos)
 
 
 if __name__ == '__main__':

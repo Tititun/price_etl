@@ -502,3 +502,15 @@ def test_upsert_product_list(db_connection, upsert_list):
          None, 0, '50g'),
     ]
     assert result == expected_result
+
+
+def test_upsert_product_list_returns_date(db_connection, upsert_list):
+    category = Category(
+        category_id=1,
+        supermarket_id=1,
+        category_code='test_id_1',
+        name='First Category'
+    )
+    returned_date = upsert_product_list(db_connection, upsert_list, category)
+    expected_date = datetime.date(year=2021, month=1, day=1)
+    assert returned_date == expected_date

@@ -1,6 +1,7 @@
 """
 this module creates functions for connection to MySQL database
 """
+import datetime
 import os
 from typing import Optional
 
@@ -239,7 +240,7 @@ def fetch_product_codes_map(
 
 def upsert_product_list(connection: MySQLConnectionAbstract,
                         product_list: ProductList,
-                        category: Category) -> None:
+                        category: Category) -> datetime.date:
     """
     updates product's name and category_id if these products already exist
     inserts new products into database if they are new
@@ -248,6 +249,7 @@ def upsert_product_list(connection: MySQLConnectionAbstract,
     :param connection: MySQL connection
     :param product_list: ProductList
     :param category: Category of all the products in product_list
+    :return: returns the date of the observations
     """
 
     existent_product_codes = fetch_products_codes(connection, category)
@@ -268,6 +270,8 @@ def upsert_product_list(connection: MySQLConnectionAbstract,
     product_list.update_product_ids(codes_map)
     product_infos = [p.product_info for p in product_list.items]
     insert_product_infos(connection, product_infos)
+
+    return product_list.items[0].product_info.observed_on
 
 
 if __name__ == '__main__':

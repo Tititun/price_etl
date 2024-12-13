@@ -286,7 +286,7 @@ def update_category_last_scraped_on(
     """
     today = get_today_date()
     date_dif = today - date
-    if date_dif.days < 1:
+    if date_dif.days < 0:
         raise ValueError('Can\'t assign a date from the future')
     with connection.cursor() as cursor:
         cursor.execute("""
@@ -295,6 +295,7 @@ def update_category_last_scraped_on(
                        WHERE category_id=%s
                        """,
                        (date, category.category_id))
+        connection.commit()
 
 
 if __name__ == '__main__':

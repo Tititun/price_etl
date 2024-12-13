@@ -1,6 +1,7 @@
 """
 this module creates functions for connection to MySQL database
 """
+import datetime
 import os
 from typing import Optional
 
@@ -65,15 +66,17 @@ def fetch_supermarket_by_id(connection: MySQLConnectionAbstract, id_: int) \
 
 
 def fetch_category_to_scrape(connection: MySQLConnectionAbstract,
+                             date: datetime.date,
                              supermarket: Supermarket) -> Optional[Category]:
     """
     fetch a category from categories table which was updated
-    more than 7 days ago or hasn't been scraped at all in a random order
+    more than 7 days ago from the provided date
+    or hasn't been scraped at all in a random order
     :param connection: MySQL connection
+    :param date: date from which to subtract 7 days
     :param supermarket: Supermarket object
     :return: Category object
     """
-    today = get_today_date()
     with connection.cursor(dictionary=True) as cur:
         cur.execute(
             """
@@ -83,12 +86,12 @@ def fetch_category_to_scrape(connection: MySQLConnectionAbstract,
             FROM categories
             WHERE
                 supermarket_id = %(supermarket_id)s AND
-                (last_scraped_on < DATE_SUB(%(today)s, INTERVAL 6 DAY)
+                (last_scraped_on < DATE_SUB(%(date)s, INTERVAL 6 DAY)
                  OR last_scraped_on IS NULL)
             ORDER BY RAND()
             LIMIT 1;
             """,
-            ({'today': today, 'supermarket_id': supermarket.supermarket_id})
+            ({'date': date, 'supermarket_id': supermarket.supermarket_id})
         )
         result = cur.fetchone()
         return Category(**result) if result else None

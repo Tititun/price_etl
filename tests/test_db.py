@@ -197,7 +197,7 @@ def test_fetch_category_to_scrape_none(db_connection):
         last_scraped_on=None
     )
     supermarket = Supermarket(supermarket_id=1, name='First Supermarket')
-    result = fetch_category_to_scrape(db_connection, supermarket)
+    result = fetch_category_to_scrape(db_connection, today, supermarket)
     assert expected_result == result
 
 
@@ -214,7 +214,7 @@ def test_fetch_category_to_scrape_fetches(db_connection):
         last_scraped_on=ten_days_ago
     )
     supermarket = Supermarket(supermarket_id=2, name='Second Supermarket')
-    result = fetch_category_to_scrape(db_connection, supermarket)
+    result = fetch_category_to_scrape(db_connection, today, supermarket)
     assert expected_result == result
 
 

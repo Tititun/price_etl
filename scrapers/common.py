@@ -85,6 +85,7 @@ class Product(BaseModel):
     product_code: str
     category_id: int
     name: str
+    url: str
     created_on: datetime.date
     product_info: Optional[ProductInfo] = None
 

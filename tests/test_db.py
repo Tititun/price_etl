@@ -47,11 +47,11 @@ setup_queries = [
     
     """
         INSERT INTO products
-        (product_id, product_code, category_id, name, created_on)
+        (product_id, product_code, category_id, name, url, created_on)
         VALUES
-        (1, "product_id_1", 1, "Product 1", "2020-01-01"),
-        (2, "product_id_2", 1, "Product 2", "2020-01-02"),
-        (3, "product_id_3", 2, "Product 3", "2020-01-03");
+        (1, "product_id_1", 1, "Product 1", "url_1", "2020-01-01"),
+        (2, "product_id_2", 1, "Product 2", "url_2", "2020-01-02"),
+        (3, "product_id_3", 2, "Product 3", "url_3", "2020-01-03");
     """,
 
     """
@@ -242,17 +242,17 @@ def starter_products() -> ProductList:
             Product(
                 product_id=1,
                 product_code='product_id_1',
-                supermarket_id=1,
                 category_id=1,
                 name='Product 1',
+                url='url_1',
                 created_on=datetime.date(year=2020, month=1, day=1),
             ),
             Product(
                 product_id=2,
                 product_code='product_id_2',
-                supermarket_id=1,
                 category_id=1,
                 name='Product 2',
+                url='url_2',
                 created_on=datetime.date(year=2020, month=1, day=2),
             )
         ]
@@ -261,20 +261,21 @@ def starter_products() -> ProductList:
 
 def test_update_existent_products(db_connection, starter_products):
     """
-    test that update_existent_products updates names of products
+    test that update_existent_products updates names and urls of products
     """
     starter_products.items[0].name = 'Product X'
+    starter_products.items[1].url = 'new_url_2'
     update_existent_products(db_connection, starter_products)
     with db_connection.cursor() as cursor:
         cursor.execute("""
-                        SELECT product_id, name
+                        SELECT product_id, name, url
                         FROM products
                         WHERE product_id <= 2
                         ORDER BY product_id
                        """)
         result = cursor.fetchall()
-    assert result == [(1, 'Product X'),
-                      (2, 'Product 2')]
+    assert result == [(1, 'Product X', 'url_1'),
+                      (2, 'Product 2', 'new_url_2')]
 
 
 @pytest.fixture
@@ -288,17 +289,17 @@ def new_products() -> ProductList:
             Product(
                 product_id=None,
                 product_code='product_id_4',
-                supermarket_id=1,
                 category_id=2,
                 name='Product 4',
+                url='url_4',
                 created_on=datetime.date(year=2020, month=1, day=5),
             ),
             Product(
                 product_id=None,
                 product_code='product_id_5',
-                supermarket_id=1,
                 category_id=2,
                 name='Product 5',
+                url='url_5',
                 created_on=datetime.date(year=2020, month=1, day=5),
             )
         ]
@@ -315,16 +316,16 @@ def test_insert_new_products(db_connection, new_products):
             """
                 SELECT
                     p.product_id, p.product_code, p.category_id,
-                    p.name, p.created_on
+                    p.name, p.url, p.created_on
                 FROM products p JOIN categories c USING (category_id)
                 WHERE c.supermarket_id=1 AND p.category_id=2;
             """)
         result = cursor.fetchall()
 
     expected_result = [
-        (3, 'product_id_3', 2, 'Product 3', datetime.date(2020, 1, 3)),
-        (4, 'product_id_4', 2, 'Product 4', datetime.date(2020, 1, 5)),
-        (5, 'product_id_5', 2, 'Product 5', datetime.date(2020, 1, 5)),
+        (3, 'product_id_3', 2, 'Product 3', 'url_3', datetime.date(2020, 1, 3)),
+        (4, 'product_id_4', 2, 'Product 4', 'url_4', datetime.date(2020, 1, 5)),
+        (5, 'product_id_5', 2, 'Product 5', 'url_5', datetime.date(2020, 1, 5)),
     ]
     assert result == expected_result
 
@@ -402,9 +403,9 @@ def upsert_list():
         Product(
             product_id=None,
             product_code='product_id_1',
-            supermarket_id=1,
             category_id=1,
             name='New Product 1 Name',   # new name
+            url='url_1',
             created_on=datetime.date(year=2021, month=1, day=1),  # changed date
             product_info=ProductInfo(
                 product_id=None,
@@ -419,9 +420,9 @@ def upsert_list():
         Product(
             product_id=None,
             product_code='product_id_2',
-            supermarket_id=1,
             category_id=1,
             name='Product 2',
+            url='url_2',
             created_on=datetime.date(year=2021, month=1, day=1),  # changed date
             product_info=ProductInfo(
                 product_id=None,
@@ -437,9 +438,9 @@ def upsert_list():
         Product(
             product_id=None,
             product_code='product_id_4',
-            supermarket_id=1,
             category_id=1,
             name='Product 4',
+            url='url_4',
             created_on=datetime.date(year=2021, month=1, day=1),
             product_info=ProductInfo(
                 product_id=None,

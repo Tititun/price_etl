@@ -159,14 +159,14 @@ def fetch_products_codes(
 def update_existent_products(connection: MySQLConnectionAbstract,
                              to_update: ProductList) -> None:
     """
-    updates existent products in the database - their category_id and name
+    updates existent products in the database - their name and url
     :param connection: MySQL connection
     :param to_update: ProductList containing Product objects to update
     """
     with connection.cursor() as cursor:
         cursor.executemany(
             """UPDATE products
-              SET name=%(name)s
+              SET name=%(name)s, url=%(url)s
               WHERE product_code=%(product_code)s 
                     AND category_id=%(category_id)s
            """,
@@ -188,7 +188,7 @@ def insert_new_products(connection: MySQLConnectionAbstract,
             """
            INSERT INTO products VALUES
               (%(product_id)s, %(product_code)s, %(category_id)s,
-               %(name)s, %(created_on)s)
+               %(name)s, %(url)s, %(created_on)s)
            """, to_insert.model_dump(
                 exclude={'items': {'__all__': {'product_info'}}})['items']
         )

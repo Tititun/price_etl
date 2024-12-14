@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS products (
     product_code VARCHAR(30) NOT NULL,
     category_id INT NOT NULL,
     name VARCHAR(200) NOT NULL,
+    url VARCHAR(200) NOT NULL,
     created_on DATE DEFAULT (CURRENT_DATE),
     FOREIGN KEY product_category (category_id)
         REFERENCES categories (category_id) ON DELETE CASCADE ON UPDATE CASCADE

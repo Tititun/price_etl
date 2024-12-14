@@ -123,13 +123,14 @@ def test_parse_data(category, example_product_list):
                 product_code='4133363',
                 category_id=1,
                 name='Шоколадный батончик Snickers Super 80г',
+                url='https://5ka.ru/product/4133363',
                 created_on=today,
                 product_info=ProductInfo(
                     product_id=None,
                     observed_on=today,
                     price=Decimal("69.99"),
                     discounted_price=None,
-                    rating=4.94,
+                    rating=Decimal('4.94'),
                     rates_count=47688,
                     unit='80 г'
                 )
@@ -139,13 +140,14 @@ def test_parse_data(category, example_product_list):
                 product_code='2138420',
                 category_id=1,
                 name='Шоколадный батончик Twix Xtra с карамелью 82г',
+                url='https://5ka.ru/product/2138420',
                 created_on=today,
                 product_info=ProductInfo(
                     product_id=None,
                     observed_on=today,
                     price=Decimal("67.99"),
                     discounted_price=Decimal("59.99"),
-                    rating=4.94,
+                    rating=Decimal('4.94'),
                     rates_count=28393,
                     unit='82 г'
                 )

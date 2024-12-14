@@ -58,6 +58,7 @@ def parse_data(request_data: RequestData, category: Category) -> ProductList:
             product_code=product_code,
             category_id=category.category_id,
             name=record['name'],
+            url=f'https://5ka.ru/product/{product_code}',
             created_on=request_data.date
         )
         rating_info = record.get('rating') or {}

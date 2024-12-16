@@ -4,10 +4,14 @@ This file contains common objects which can be used by many scrapers
 
 import datetime
 from decimal import Decimal
+import os
+from pathlib import Path
 import pytz
 from typing import Optional
 
+from dotenv import load_dotenv
 from pydantic import BaseModel
+import requests
 
 
 # headers to use in requests
@@ -126,3 +130,22 @@ class RequestData(BaseModel):
     category: Category
     data: dict
     date: datetime.date
+
+
+def telegram_callback_on_failure(context: dict):
+    """
+    send a telegram error message upon a DAG failure
+    :context: dictionary with context from the failed DAG
+    """
+
+    env_path = Path(__file__).parent.parent / '.env'
+    load_dotenv(env_path)
+    dag_id = context['task_instance'].dag_id
+    task_id = context['task_instance'].task_id
+    message = f'TASK {task_id} FAILED IN DAG {dag_id}'
+    requests.get(f"https://api.telegram.org/bot"
+                 f"{os.environ['TELEGRAM_BOT_TOKEN']}"
+                 f"/sendMessage?"
+                 f"chat_id={os.environ['TELEGRAM_BOT_CHAT_ID']}&"
+                 f"text={message}",
+                 timeout=10)

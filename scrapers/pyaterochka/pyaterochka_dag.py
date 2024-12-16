@@ -5,10 +5,14 @@ import datetime
 
 from airflow.decorators import dag, task
 
+from scrapers.common import telegram_callback_on_failure
+
+
 @dag(
     schedule=None,
     start_date=None,
     catchup=False,
+    on_failure_callback=telegram_callback_on_failure,
     tags=['scrapers']
 )
 def pyaterochka_scraper():

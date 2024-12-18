@@ -225,16 +225,17 @@ def fetch_product_codes_map(
     :param product_list: ProductList
     :return: dictionary with product_codes as keys, product_ids as values
     """
-    category_id = product_list.items[0].category_id
+    supermarket_id = product_list.items[0].category_id
     format_string = ','.join(['%s' for _ in product_list.items])
     query = f"""
             SELECT product_code, product_id
-            FROM products
-            WHERE category_id=%s AND product_code IN ({format_string});
+            FROM products JOIN categories USING (category_id)
+            WHERE supermarket_id=%s AND product_code IN ({format_string});
             """
     with connection.cursor() as cursor:
         cursor.execute(
-            query, (category_id, *[p.product_code for p in product_list.items])
+            query,
+            (supermarket_id, *[p.product_code for p in product_list.items])
         )
         return {r[0]: r[1] for r in cursor.fetchall()}
 

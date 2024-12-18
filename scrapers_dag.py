@@ -8,11 +8,11 @@ from airflow.decorators import dag, task
 from scrapers.common import telegram_callback_on_failure
 
 
-for scraper_module in ['pyaterochka']:
+for i, scraper_module in enumerate(['pyaterochka']):
     @dag(
         dag_id=f'{scraper_module}_scraper',
-        schedule=None,
-        start_date=None,
+        schedule=f'{i}/5 * * * *',
+        start_date=datetime.datetime(2024,1,1),
         catchup=False,
         on_failure_callback=telegram_callback_on_failure,
         tags=['scrapers'],

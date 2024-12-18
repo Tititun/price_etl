@@ -217,15 +217,17 @@ def insert_product_infos(connection: MySQLConnectionAbstract,
 
 def fetch_product_codes_map(
         connection: MySQLConnectionAbstract,
+        category: Category,
         product_list: ProductList) -> dict[str, int]:
     """
     requests product_ids for all the products in product_list and creates
     a mapping product_code -> product_id
     :param connection: MySQL connection
+    :param category: category of products in product_list
     :param product_list: ProductList
     :return: dictionary with product_codes as keys, product_ids as values
     """
-    supermarket_id = product_list.items[0].category_id
+    supermarket_id = category.supermarket_id
     format_string = ','.join(['%s' for _ in product_list.items])
     query = f"""
             SELECT product_code, product_id
@@ -268,7 +270,7 @@ def upsert_product_list(connection: MySQLConnectionAbstract,
     update_existent_products(connection, to_update)
     insert_new_products(connection, to_insert)
 
-    codes_map = fetch_product_codes_map(connection, product_list)
+    codes_map = fetch_product_codes_map(connection, category, product_list)
     product_list.update_product_ids(codes_map)
     product_infos = [p.product_info for p in product_list.items]
     insert_product_infos(connection, product_infos)

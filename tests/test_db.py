@@ -383,7 +383,18 @@ def test_insert_product_infos(db_connection, new_product_infos):
     assert result == expected_result
 
 
-def test_fetch_product_ids(db_connection, starter_products):
+@pytest.fixture
+def category():
+    """returns the first Category from test_database"""
+    return Category(
+        category_id=1,
+        supermarket_id=1,
+        category_code='test_id_1',
+        name='First Category'
+    )
+
+
+def test_fetch_product_ids(db_connection, category, starter_products):
     """
     test that fetch_product_codes_map return correct mapping of
     product codes to product ids
@@ -395,7 +406,7 @@ def test_fetch_product_ids(db_connection, starter_products):
         'product_id_1': 1,
         'product_id_2': 2
     }
-    result = fetch_product_codes_map(db_connection, starter_products)
+    result = fetch_product_codes_map(db_connection, category, starter_products)
     assert expected_result == result
 
 
@@ -456,17 +467,6 @@ def upsert_list():
         ),
     ]
     return ProductList(items=items)
-
-
-@pytest.fixture
-def category():
-    """returns the first Category from test_database"""
-    return Category(
-        category_id=1,
-        supermarket_id=1,
-        category_code='test_id_1',
-        name='First Category'
-    )
 
 
 def test_upsert_product_list(db_connection, upsert_list, category):

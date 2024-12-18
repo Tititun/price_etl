@@ -138,7 +138,7 @@ def upsert_categories(connection: MySQLConnectionAbstract,
 
 def fetch_products_codes(
         connection: MySQLConnectionAbstract,
-        category: Category) -> list[str]:
+        category: Category) -> set[str]:
     """
     fetches product codes of all products of the category
     :param connection: MySQL connection
@@ -149,11 +149,12 @@ def fetch_products_codes(
         cursor.execute(
             """
             SELECT product_code
-            FROM products WHERE category_id=%s;
+            FROM products JOIN categories USING (category_id)
+            WHERE supermarket_id=%s;
             """,
-            (category.category_id,)
+            (category.supermarket_id,)
         )
-        return [res[0] for res in cursor.fetchall()]
+        return {res[0] for res in cursor.fetchall()}
 
 
 def update_existent_products(connection: MySQLConnectionAbstract,

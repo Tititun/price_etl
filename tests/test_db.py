@@ -51,7 +51,9 @@ setup_queries = [
         VALUES
         (1, "product_id_1", 1, "Product 1", "url_1", "2020-01-01"),
         (2, "product_id_2", 1, "Product 2", "url_2", "2020-01-02"),
-        (3, "product_id_3", 2, "Product 3", "url_3", "2020-01-03");
+        (3, "product_id_3", 2, "Product 3", "url_3", "2020-01-03"),
+        (4, "product_id_4", 3, "Product 4", "url_4", "2020-01-03")
+        ;
     """,
 
     """
@@ -224,7 +226,7 @@ def test_fetch_products_codes(db_connection):
     test that fetch_products_ids fetches the expected list of product ids for
     a given category
     """
-    expected_result = ['product_id_1', 'product_id_2']
+    expected_result = {'product_id_1', 'product_id_2', 'product_id_3'}
     category = Category(supermarket_id=1, category_id=1,
                         category_code='test_id_1', name='First Category')
     fetched_results = fetch_products_codes(db_connection, category)
@@ -288,18 +290,18 @@ def new_products() -> ProductList:
         items=[
             Product(
                 product_id=None,
-                product_code='product_id_4',
-                category_id=2,
-                name='Product 4',
-                url='url_4',
-                created_on=datetime.date(year=2020, month=1, day=5),
-            ),
-            Product(
-                product_id=None,
                 product_code='product_id_5',
                 category_id=2,
                 name='Product 5',
                 url='url_5',
+                created_on=datetime.date(year=2020, month=1, day=5),
+            ),
+            Product(
+                product_id=None,
+                product_code='product_id_6',
+                category_id=2,
+                name='Product 6',
+                url='url_6',
                 created_on=datetime.date(year=2020, month=1, day=5),
             )
         ]
@@ -324,8 +326,8 @@ def test_insert_new_products(db_connection, new_products):
 
     expected_result = [
         (3, 'product_id_3', 2, 'Product 3', 'url_3', datetime.date(2020, 1, 3)),
-        (4, 'product_id_4', 2, 'Product 4', 'url_4', datetime.date(2020, 1, 5)),
         (5, 'product_id_5', 2, 'Product 5', 'url_5', datetime.date(2020, 1, 5)),
+        (6, 'product_id_6', 2, 'Product 6', 'url_6', datetime.date(2020, 1, 5)),
     ]
     assert result == expected_result
 
@@ -437,10 +439,10 @@ def upsert_list():
         # new product:
         Product(
             product_id=None,
-            product_code='product_id_4',
+            product_code='product_id_5',
             category_id=1,
-            name='Product 4',
-            url='url_4',
+            name='Product 5',
+            url='url_5',
             created_on=datetime.date(year=2021, month=1, day=1),
             product_info=ProductInfo(
                 product_id=None,
@@ -504,7 +506,7 @@ def test_upsert_product_list(db_connection, upsert_list, category):
          datetime.date(2021, 1, 1), Decimal('150.00'), None,
          Decimal('4.99'), 1001, '1 l'),
 
-        (4, 'product_id_4', 1, 'Product 4', datetime.date(2021, 1, 1),
+        (5, 'product_id_5', 1, 'Product 5', datetime.date(2021, 1, 1),
          datetime.date(2021, 1, 1), Decimal('500.00'), None,
          None, 0, '50g'),
     ]

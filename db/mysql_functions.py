@@ -127,9 +127,10 @@ def upsert_categories(connection: MySQLConnectionAbstract,
 
     with connection.cursor() as cursor:
         cursor.executemany(
-            'INSERT IGNORE INTO categories '
-            '(supermarket_id, category_code, name) VALUES '
-            '(%(supermarket_id)s, %(category_code)s, %(name)s);',
+            """INSERT INTO categories
+               (supermarket_id, category_code, name) VALUES
+               (%(supermarket_id)s, %(category_code)s, %(name)s)
+               ON DUPLICATE KEY UPDATE name=VALUES(name);""",
             [category.model_dump() for category in categories]
         )
         connection.commit()

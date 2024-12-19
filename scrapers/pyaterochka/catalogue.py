@@ -35,11 +35,12 @@ def parse_categories(
     result_data = []
     for top_category in json_data:
         for subcategory in top_category['subcategories']:
+            name = top_category['name'] + ' / ' + subcategory['name']
             result_data.append(
                 Category(category_id=None,
                          supermarket_id=supermarket.supermarket_id,
                          category_code=subcategory['id'],
-                         name=subcategory['name'])
+                         name=name)
             )
     return result_data
 

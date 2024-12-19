@@ -40,13 +40,17 @@ def test_parse_categories(example_catalogue):
     """
     expected_result = [
         Category(supermarket_id=1, category_id=None,
-                 category_code='73C20455', name='Готовим оливье'),
+                 category_code='73C20455',
+                 name='Новый Год / Готовим оливье'),
         Category(supermarket_id=1, category_id=None,
-                 category_code='73C20456', name='Запекаем в духовке'),
+                 category_code='73C20456',
+                 name='Новый Год / Запекаем в духовке'),
         Category(supermarket_id=1, category_id=None,
-                 category_code='73C10301', name='Горячие напитки'),
+                 category_code='73C10301',
+                 name='Готовая еда / Горячие напитки'),
         Category(supermarket_id=1, category_id=None,
-                 category_code='73C9714', name='Блинчики, сырники и каши'),
+                 category_code='73C9714',
+                 name='Готовая еда / Блинчики, сырники и каши'),
     ]
     supermarket=Supermarket(supermarket_id=1, name=SUPERMARKET_NAME)
     parsed_categories = parse_categories(example_catalogue, supermarket)

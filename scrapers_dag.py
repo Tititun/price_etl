@@ -51,12 +51,16 @@ for i, scraper_module in enumerate(['pyaterochka']):
                 category = fetch_category_to_scrape(conn, supermarket)
             return category
 
-        @task.docker(**docker_task_args)
+        @task.docker(skip_on_exit_code=10, **docker_task_args)
         def fetch_data(category: Category) -> RequestData:
             """
             A task that requests data for the category from the supermarket's
             website
             """
+            import sys
+            if not category:
+                # mark task as skipped if there are no category to scrape
+                sys.exit(10)
             import importlib
             import os
             scraper = os.environ['scraper']
@@ -64,7 +68,7 @@ for i, scraper_module in enumerate(['pyaterochka']):
             request_data = s_module.request_data
             return request_data(category)
 
-        @task.docker(**docker_task_args)
+        @task.docker(skip_on_exit_code=10, **docker_task_args)
         def transform(data: RequestData, category: Category) -> ProductList:
             """
             A task that  takes raw json data received from the supermarket's
@@ -72,11 +76,13 @@ for i, scraper_module in enumerate(['pyaterochka']):
             """
             import importlib
             import os
+            import sys
             scraper = os.environ['scraper']
             s_module = importlib.import_module(f'scrapers.{scraper}.scraper')
             product_list = s_module.parse_data(data, category)
             if not product_list.items:
-                raise IndexError
+                # mark tasked as skipped if there are no items
+                sys.exit(10)
             return product_list
 
         @task.docker(**docker_task_args)

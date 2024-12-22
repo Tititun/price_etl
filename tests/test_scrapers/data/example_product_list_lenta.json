@@ -1,0 +1,175 @@
+[
+    {
+        "badges": {
+            "discount": [
+                {
+                    "backgroundColor": "#ef4544",
+                    "title": "-25%",
+                    "tooltip": {
+                        "description": ""
+                    }
+                }
+            ],
+            "image": []
+        },
+        "chipsPrices": [],
+        "count": 60,
+        "dimensions": {
+            "height": 170,
+            "length": 20,
+            "width": 120
+        },
+        "features": {
+            "isAdult": false,
+            "isAlcohol": false,
+            "isBlockedForSale": false,
+            "isFavorite": false,
+            "isMarkType": false,
+            "isMercurial": false,
+            "isOnlyPickup": false,
+            "isPartner": false,
+            "isPromo": false,
+            "isPurchased": false,
+            "isTobacco": false,
+            "isWeight": false
+        },
+        "id": 54761,
+        "images": [
+            {
+                "icon": "https://cdn.lentochka.lenta.com/resample/webp/100x100/photo/54761/8ea33fd2-4de7-4975-8f69-bd181bdcbef0.png",
+                "id": 782436,
+                "large": "https://cdn.lentochka.lenta.com/resample/webp/900x900/photo/54761/8ea33fd2-4de7-4975-8f69-bd181bdcbef0.png",
+                "medium": "https://cdn.lentochka.lenta.com/resample/webp/500x500/photo/54761/8ea33fd2-4de7-4975-8f69-bd181bdcbef0.png",
+                "original": "https://cdn.lentochka.lenta.com/resample/webp/0x0/photo/54761/8ea33fd2-4de7-4975-8f69-bd181bdcbef0.png",
+                "position": 1,
+                "preview": "https://cdn.lentochka.lenta.com/resample/webp/250x250/photo/54761/8ea33fd2-4de7-4975-8f69-bd181bdcbef0.png"
+            },
+            {
+                "icon": "https://cdn.lentochka.lenta.com/resample/webp/100x100/photo/54761/5c004e97-786f-4f3a-b0f5-4dfacffab674.png",
+                "id": 782435,
+                "large": "https://cdn.lentochka.lenta.com/resample/webp/900x900/photo/54761/5c004e97-786f-4f3a-b0f5-4dfacffab674.png",
+                "medium": "https://cdn.lentochka.lenta.com/resample/webp/500x500/photo/54761/5c004e97-786f-4f3a-b0f5-4dfacffab674.png",
+                "original": "https://cdn.lentochka.lenta.com/resample/webp/0x0/photo/54761/5c004e97-786f-4f3a-b0f5-4dfacffab674.png",
+                "position": 2,
+                "preview": "https://cdn.lentochka.lenta.com/resample/webp/250x250/photo/54761/5c004e97-786f-4f3a-b0f5-4dfacffab674.png"
+            }
+        ],
+        "name": "Мармелад жевательный БОН ПАРИ Забавный медвежонок, 75г",
+        "prices": {
+            "cost": 5499,
+            "costRegular": 7369,
+            "isLoyaltyCardPrice": true,
+            "isPromoactionPrice": true,
+            "price": 5499,
+            "priceRegular": 7369
+        },
+        "quantityDiscount": [],
+        "rating": {
+            "rate": 4.8,
+            "votes": 12
+        },
+        "saleLimit": {
+            "foldQuantity": 1,
+            "maxSaleQuantity": 60,
+            "minSaleQuantity": 1
+        },
+        "slug": "marmelad-zhevatelnyjj-bon-pari-medvedi-rossiya-75g",
+        "storeId": 96,
+        "weight": {
+            "gross": 77,
+            "net": 0,
+            "package": "75г"
+        }
+    },
+    {
+        "badges": {
+            "discount": [
+                {
+                    "backgroundColor": "#ef4544",
+                    "title": "-11%",
+                    "tooltip": {
+                        "description": ""
+                    }
+                }
+            ],
+            "image": []
+        },
+        "chipsPrices": [],
+        "count": 77,
+        "dimensions": {
+            "height": 190,
+            "length": 130,
+            "width": 55
+        },
+        "features": {
+            "isAdult": false,
+            "isAlcohol": false,
+            "isBlockedForSale": false,
+            "isFavorite": false,
+            "isMarkType": false,
+            "isMercurial": false,
+            "isOnlyPickup": false,
+            "isPartner": false,
+            "isPromo": false,
+            "isPurchased": false,
+            "isTobacco": false,
+            "isWeight": false
+        },
+        "id": 55437,
+        "images": [
+            {
+                "icon": "https://cdn.lentochka.lenta.com/resample/webp/100x100/photo/55437/dcc31087-1466-4389-9330-517d9ab2e143.png",
+                "id": 640653,
+                "large": "https://cdn.lentochka.lenta.com/resample/webp/900x900/photo/55437/dcc31087-1466-4389-9330-517d9ab2e143.png",
+                "medium": "https://cdn.lentochka.lenta.com/resample/webp/500x500/photo/55437/dcc31087-1466-4389-9330-517d9ab2e143.png",
+                "original": "https://cdn.lentochka.lenta.com/resample/webp/0x0/photo/55437/dcc31087-1466-4389-9330-517d9ab2e143.png",
+                "position": 1,
+                "preview": "https://cdn.lentochka.lenta.com/resample/webp/250x250/photo/55437/dcc31087-1466-4389-9330-517d9ab2e143.png"
+            },
+            {
+                "icon": "https://cdn.lentochka.lenta.com/resample/webp/100x100/photo/55437/4b1fbff8-4963-4074-b032-9aaa4de25295.png",
+                "id": 640652,
+                "large": "https://cdn.lentochka.lenta.com/resample/webp/900x900/photo/55437/4b1fbff8-4963-4074-b032-9aaa4de25295.png",
+                "medium": "https://cdn.lentochka.lenta.com/resample/webp/500x500/photo/55437/4b1fbff8-4963-4074-b032-9aaa4de25295.png",
+                "original": "https://cdn.lentochka.lenta.com/resample/webp/0x0/photo/55437/4b1fbff8-4963-4074-b032-9aaa4de25295.png",
+                "position": 2,
+                "preview": "https://cdn.lentochka.lenta.com/resample/webp/250x250/photo/55437/4b1fbff8-4963-4074-b032-9aaa4de25295.png"
+            },
+            {
+                "icon": "https://cdn.lentochka.lenta.com/resample/webp/100x100/photo/55437/42725aef-63ec-479c-953a-4d00f88e9e1c.png",
+                "id": 640654,
+                "large": "https://cdn.lentochka.lenta.com/resample/webp/900x900/photo/55437/42725aef-63ec-479c-953a-4d00f88e9e1c.png",
+                "medium": "https://cdn.lentochka.lenta.com/resample/webp/500x500/photo/55437/42725aef-63ec-479c-953a-4d00f88e9e1c.png",
+                "original": "https://cdn.lentochka.lenta.com/resample/webp/0x0/photo/55437/42725aef-63ec-479c-953a-4d00f88e9e1c.png",
+                "position": 3,
+                "preview": "https://cdn.lentochka.lenta.com/resample/webp/250x250/photo/55437/42725aef-63ec-479c-953a-4d00f88e9e1c.png"
+            }
+        ],
+        "name": "Зефир ШАРМЭЛЬ с ароматом ванили, 255г",
+        "prices": {
+            "cost": 14999,
+            "costRegular": 16849,
+            "isLoyaltyCardPrice": true,
+            "isPromoactionPrice": true,
+            "price": 14999,
+            "priceRegular": 16849
+        },
+        "quantityDiscount": [],
+        "rating": {
+            "rate": 4.8,
+            "votes": 78
+        },
+        "saleLimit": {
+            "foldQuantity": 1,
+            "maxSaleQuantity": 77,
+            "minSaleQuantity": 1
+        },
+        "slug": "zefir-sharmel-s-aromatom-vanili-rossiya-255g",
+        "storeId": 96,
+        "weight": {
+            "gross": 298,
+            "net": 0,
+            "package": "255г"
+        }
+    }
+]

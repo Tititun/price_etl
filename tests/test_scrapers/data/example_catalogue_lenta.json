@@ -1,0 +1,59 @@
+{"categories": [
+        {
+            "badges": [],
+            "hasChildren": false,
+            "iconUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/1766/icon/32db136e118f01f9.png",
+            "id": 1766,
+            "imageUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/1766/image/dfcf4521be6ad2c2.png",
+            "imageWebUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/1766/image_web/e7576f3e877439d8.png",
+            "isAdult": false,
+            "level": 3,
+            "name": "Шоколадные батончики",
+            "parentId": 2632,
+            "parentName": "Шоколад и батончики",
+            "slug": "shokoladnye-batonchiki"
+        },
+        {
+            "badges": [],
+            "hasChildren": false,
+            "iconUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/763/icon/4a6e6c1536b62037.png",
+            "id": 763,
+            "imageUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/763/image/728e7008eb5cc151.png",
+            "imageWebUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/763/image_web/a47da340f7830aad.png",
+            "isAdult": false,
+            "level": 2,
+            "name": "Ветчина",
+            "parentId": 754,
+            "parentName": "Колбаса, сосиски",
+            "slug": "vetchina"
+        },
+        {
+            "badges": [],
+            "hasChildren": true,
+            "iconUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/1791/icon/c8e19ad1bae82ea0.png",
+            "id": 1791,
+            "imageUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/1791/image/8eabfdbf98df71f6.png",
+            "imageWebUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/1791/image_web/1dab1391f91b01ef.png",
+            "isAdult": false,
+            "level": 2,
+            "name": "Кухонные машины и мясорубки",
+            "parentId": 1439,
+            "parentName": "Бытовая техника",
+            "slug": "kuhonnye-mashiny-i-myasorubki"
+        },
+        {
+            "badges": [],
+            "hasChildren": true,
+            "iconUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/19305/icon/550e817ab201335f.png",
+            "id": 19305,
+            "imageUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/19305/image/a35c4b8d4f0717ce.png",
+            "imageWebUrl": "https://cdn.lentochka.lenta.com/resample/0x0/category_images_v2/19305/image_web/6af8069b520e757e.png",
+            "isAdult": true,
+            "level": 1,
+            "name": "Новинки",
+            "parentId": 0,
+            "parentName": "",
+            "slug": "novinki"
+        }
+    ]
+}

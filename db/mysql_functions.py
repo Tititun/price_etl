@@ -3,14 +3,15 @@ this module creates functions for connection to MySQL database
 """
 import datetime
 import os
+import pickle
 from typing import Optional
 
 from dotenv import load_dotenv
 import mysql.connector
 from mysql.connector.abstracts import MySQLConnectionAbstract
 
-from scrapers.common import (Category, ProductInfo,
-                             ProductList, Supermarket, get_today_date)
+from scrapers.common import (Category, ProductInfo, ProductList,
+                             RequestData, Supermarket, get_today_date)
 
 load_dotenv()
 
@@ -25,6 +26,77 @@ def mysql_connect() -> MySQLConnectionAbstract:
                                          host=os.environ['mysql_host'],
                                          database=os.environ['mysql_database'])
     return connection
+
+
+def airflow_connect() -> MySQLConnectionAbstract:
+    """
+    create a MySQL connection to airflow_db using environmental variables
+    :return: connection and its cursor as a tuple
+    """
+    connection = mysql.connector.connect(
+        user=os.environ['airflow_user'],
+        password=os.environ['airflow_password'],
+        host=os.environ['airflow_host'],
+        database=os.environ['airflow_database']
+    )
+    return connection
+
+
+def airflow_category() -> Category:
+    """
+    returns Category that was fetched in the fetch_category step of
+    supermarket's DAG by this DAG's run_id
+    :return: Category
+    """
+    run_id = os.environ['run_id']
+    with airflow_connect() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                    SELECT value FROM xcom
+                    WHERE run_id=%s and task_id="fetch_category"
+                    and `key`="return_value";
+                """, (run_id, )
+            )
+            return pickle.loads(cursor.fetchone()[0])
+
+
+def airflow_data() -> RequestData:
+    """
+    returns RequestData that was fetched in the fetch_data step of
+    supermarket's DAG by this DAG's run_id
+    :return: RequestData
+    """
+    run_id = os.environ['run_id']
+    with airflow_connect() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                    SELECT value FROM xcom
+                    WHERE run_id=%s and task_id="fetch_data"
+                    and `key`="return_value";
+                """, (run_id, )
+            )
+            return pickle.loads(cursor.fetchone()[0])
+
+
+def airflow_product_list() -> ProductList:
+    """
+    returns ProductList that was fetched in the transform step of
+    supermarket's DAG by this DAG's run_id
+    :return: ProductList
+    """
+    run_id = os.environ['run_id']
+    with airflow_connect() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                    SELECT value FROM xcom
+                    WHERE run_id=%s and task_id="transform"
+                    and `key`="return_value";
+                """, (run_id, )
+            )
+            return pickle.loads(cursor.fetchone()[0])
 
 
 def fetch_supermarket_by_name(connection: MySQLConnectionAbstract, name: str) \

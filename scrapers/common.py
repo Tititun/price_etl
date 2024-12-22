@@ -7,7 +7,7 @@ from decimal import Decimal
 import os
 from pathlib import Path
 import pytz
-from typing import Optional
+from typing import Literal, Optional
 
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -35,18 +35,24 @@ def get_today_date() -> datetime.date:
     return datetime.datetime.now(tz=pytz.timezone('Asia/Tomsk')).date()
 
 
-def parse_price(item: dict, field_name: str) -> Optional[Decimal]:
+def parse_price(
+        item: dict, field_name: str, unit: Literal['r', 'k'] = 'r'
+        ) -> Optional[Decimal]:
     """
     parses field_name from item, trying to convert it to Decimal if it's not
-    None
+    None. Returns Decimal price in roubles (konverts to roubles from kopecks
+    if unit is 'k')
     :param item: dictionary
-    :field_name: string - key to get from item dictionary
+    :param field_name: string - key to get from item dictionary
+    :param unit: the unit of input data (r - roubles, k - kopecks)
     :return: Decimal if field_name in item, else None
     """
     value = item.get(field_name)
     if value is None:
         return
     else:
+        if unit == 'k':
+            return Decimal(str(value)) / 100
         return Decimal(str(value))
 
 

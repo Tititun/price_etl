@@ -19,6 +19,15 @@ def test_parse_price_decimal():
     assert parse_price({'price': 12.99}, 'price') == Decimal('12.99')
 
 
+def test_parse_price_converts():
+    """
+    test if parse_price converts kopecks to roubles if the unit argument
+    is 'k'
+    """
+    result = parse_price({'price': 15099}, 'price', unit='k')
+    assert result == Decimal('150.99')
+
+
 def make_products(without_ids: bool=False):
     product_id_1 = 1 if not without_ids else None
     product_id_2 = 2 if not without_ids else None

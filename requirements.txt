@@ -1,5 +1,6 @@
 # apache-airflow
 # apache-airflow-providers-docker
+beautifulsoup4
 python-dotenv
 mysql-connector-python
 pydantic

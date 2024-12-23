@@ -134,7 +134,6 @@ def main():
     with mysql_connect() as conn:
         supermarket = fetch_supermarket_by_name(conn, SUPERMARKET_NAME)
         categories = parse_categories(script, supermarket)
-        logger.info(categories)
 
         if not categories:
             logger.error('No categories have been fetched/parsed.')

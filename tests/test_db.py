@@ -221,6 +221,23 @@ def test_fetch_category_to_scrape_fetches(db_connection):
     assert expected_result == result
 
 
+def test_fetch_category_to_scrape_not_empty(db_connection):
+    """
+    test that fetch_category_to_scrape won't fetch a category if it's already
+    been seen today and is empty
+    """
+    with db_connection.cursor() as cursor:
+        cursor.execute(f"""
+                           UPDATE categories
+                           SET last_empty_on=%s
+                           WHERE category_id=3
+                       """, (today,))
+        db_connection.commit()
+        supermarket = Supermarket(supermarket_id=2, name='Second Supermarket')
+        result = fetch_category_to_scrape(db_connection, supermarket)
+        assert result is None
+
+
 def test_fetch_products_codes(db_connection):
     """
     test that fetch_products_ids fetches the expected list of product ids for

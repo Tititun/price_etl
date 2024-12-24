@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS categories (
     category_code VARCHAR(100) NOT NULL,
     name VARCHAR(100) NOT NULL,
     last_scraped_on DATE,
+    last_empty_on DATE,
     FOREIGN KEY categories_supermarket (supermarket_id)
 				REFERENCES supermarkets (supermarket_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	CONSTRAINT supermarket_category_code_uniques UNIQUE (supermarket_id, category_code)

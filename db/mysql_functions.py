@@ -159,6 +159,8 @@ def fetch_category_to_scrape(connection: MySQLConnectionAbstract,
                 supermarket_id = %(supermarket_id)s AND
                 (last_scraped_on < DATE_SUB(%(today)s, INTERVAL 6 DAY)
                  OR last_scraped_on IS NULL)
+                 AND
+                (last_empty_on IS NULL OR last_empty_on < %(today)s)
             ORDER BY RAND()
             LIMIT 1;
             """,

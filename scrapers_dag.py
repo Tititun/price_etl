@@ -68,7 +68,20 @@ for i, scraper_module in enumerate(['pyaterochka', 'lenta', 'magnit']):
             request_data = s_module.request_data
             return request_data(category)
 
-        @task.docker(skip_on_exit_code=10, **docker_task_args)
+        @task.branch()
+        def is_data_empty(ti) -> str:
+            """
+            checks if the data returned by the fetch_data task is empty
+            if it's empty, triggers update_category_last_empty_on task,
+            if not - triggers transform task
+            """
+            data = ti.xcom_pull(key='return_value', task_ids='fetch_data')
+            if not data.data['products']:
+                return 'update_last_empty_on'
+            else:
+                return 'transform'
+
+        @task.docker(**docker_task_args)
         def transform() -> ProductList:
             """
             A task that  takes raw json data received from the supermarket's
@@ -76,7 +89,6 @@ for i, scraper_module in enumerate(['pyaterochka', 'lenta', 'magnit']):
             """
             import importlib
             import os
-            import sys
             from db.mysql_functions import airflow_category, airflow_data
 
             scraper = os.environ['scraper']
@@ -86,9 +98,6 @@ for i, scraper_module in enumerate(['pyaterochka', 'lenta', 'magnit']):
             data = airflow_data()
             product_list = s_module.parse_data(data, category)
 
-            if not product_list.items:
-                # mark tasked as skipped if there are no items
-                sys.exit(10)
             return product_list
 
         @task.docker(**docker_task_args)
@@ -107,25 +116,43 @@ for i, scraper_module in enumerate(['pyaterochka', 'lenta', 'magnit']):
                 return upsert_product_list(conn, product_list, category)
 
         @task.docker(**docker_task_args)
-        def update_category(date: datetime.date):
+        def update_last_empty_on():
+            """
+            A task that updates the scraped category's last_empty_on field
+            """
+            from db.mysql_functions import (airflow_data,
+                                            update_category_date_field,
+                                            mysql_connect)
+
+            request_data = airflow_data()
+            date = request_data.date
+            category = request_data.category
+            with mysql_connect() as conn:
+                update_category_date_field(conn, category, date,
+                                           'last_empty_on')
+
+        @task.docker(**docker_task_args)
+        def update_last_scraped_on(date: datetime.date):
             """
             A task that updates the scraped category's last_update_on field
             """
             from db.mysql_functions import (airflow_category,
-                                            update_category_last_scraped_on,
+                                            update_category_date_field,
                                             mysql_connect)
 
             category = airflow_category()
             with mysql_connect() as conn:
-                update_category_last_scraped_on(conn, category, date)
+                update_category_date_field(conn, category, date,
+                                           'last_scraped_on')
 
         category_to_scrape = fetch_category()
         scraped_data = fetch_data(category_to_scrape)
         transformed_data = transform()
-        scraped_data >> transformed_data
+        scraped_data >> is_data_empty() >> [transformed_data,
+                                            update_last_empty_on()]
         date_ = upsert()
         transformed_data >> date_
-        update_category(date_)
+        update_last_scraped_on(date_)
 
 
     supermarket_dag()

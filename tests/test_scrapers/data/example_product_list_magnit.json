@@ -1,0 +1,88 @@
+[
+    {
+        "badges": [],
+        "catalogType": "1",
+        "gallery": [
+            {
+                "type": "IMAGE",
+                "url": "https://images-foodtech.magnit.ru/IqyXpO3hyjHUO9kUGQhJIfdObJAjkR65OIeXDwrsPIE/rs:fit:416:416/plain/s3://img-dostavka/uf/b14/b14b38e581371161dfaade2712a5f1d4/23c291e2dbd1ad9d03e82db82d0fc179.jpeg@webp"
+            }
+        ],
+        "id": "1000006090",
+        "isForAdults": false,
+        "isInFavorites": null,
+        "isLowStock": false,
+        "name": "Сливки Магнит стерилизованные 10%  500мл",
+        "orders": null,
+        "price": 12999,
+        "productId": "1000006090",
+        "promotion": {
+            "discountPercent": 34,
+            "endDate": "2025-01-07T00:00:00Z",
+            "isPromotion": true,
+            "oldPrice": 25999
+        },
+        "quantity": 6,
+        "ratings": {
+            "commentsCount": 109,
+            "rating": 4.8,
+            "scoresCount": 1500
+        },
+        "seoCode": "magnit_slivki_steril_10_0_5_l_tba_milkom_12",
+        "service": "core_mm",
+        "skuGroupId": null,
+        "storeCode": "703059",
+        "weighted": {
+            "isWeighted": false,
+            "minStep": null,
+            "shelfLabel": null,
+            "shelfWeight": null,
+            "step": null,
+            "unitLabel": null,
+            "unitPrice": null
+        }
+    },
+    {
+        "badges": [],
+        "catalogType": "1",
+        "gallery": [
+            {
+                "type": "IMAGE",
+                "url": "https://images-foodtech.magnit.ru/7UlioLyhwX9jGbDAN7UzvWbXl8RM7kK79UJk_T5ocu4/rs:fit:416:416/plain/s3://img-dostavka/uf/ed0/ed021746121a6f484f82259a7a885272/7d57bc9e561fdcc3a576247327f9e2d9.jpeg@webp"
+            }
+        ],
+        "id": "1000467851",
+        "isForAdults": false,
+        "isInFavorites": null,
+        "isLowStock": false,
+        "name": "Сливки Campina порционные 10% 100г",
+        "orders": null,
+        "price": 5499,
+        "productId": "1000467851",
+        "promotion": {
+            "discountPercent": null,
+            "endDate": null,
+            "isPromotion": false,
+            "oldPrice": null
+        },
+        "quantity": 18,
+        "ratings": {
+            "commentsCount": 59,
+            "rating": 4.8,
+            "scoresCount": 1262
+        },
+        "seoCode": "campina_slivki_ster_ports_10_100g_fl_p",
+        "service": "core_mm",
+        "skuGroupId": null,
+        "storeCode": "703059",
+        "weighted": {
+            "isWeighted": false,
+            "minStep": null,
+            "shelfLabel": null,
+            "shelfWeight": null,
+            "step": null,
+            "unitLabel": null,
+            "unitPrice": null
+        }
+    }
+]

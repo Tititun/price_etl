@@ -72,7 +72,7 @@ def parse_data(request_data: RequestData, category: Category) -> ProductList:
             observed_on=request_data.date,
             price=parse_price(record['prices'], 'priceRegular', unit='k'),
             discounted_price=parse_price(record['prices'], 'price', unit='k'),
-            rating=rating_info.get('rate'),
+            rating=rating_info.get('rate') or None,
             rates_count=rating_info.get('votes') or 0,
             unit=record.get('weight', {}).get('package')
         )

@@ -72,6 +72,7 @@ class Category(BaseModel):
     category_code: str
     name: str
     last_scraped_on: Optional[datetime.date] = None
+    last_empty_on: Optional[datetime.date] = None
 
 
 class ProductInfo(BaseModel):

@@ -159,6 +159,4 @@ def test_parse_data(category, example_product_list):
             ),
         ]
     )
-    category = Category(supermarket_id=1, category_id=1,
-                        category_code='test_code', name='test_name')
     assert parse_data(data_from_request, category) == expected_result

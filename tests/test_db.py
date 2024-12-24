@@ -20,7 +20,7 @@ from db.mysql_functions import (fetch_products_codes,
                                 insert_product_infos,
                                 upsert_categories,
                                 upsert_product_list,
-                                update_category_last_scraped_on,
+                                update_category_date_field,
                                 update_existent_products)
 from scrapers.common import (Category, Product, ProductInfo, ProductList,
                              Supermarket, get_today_date)
@@ -539,13 +539,13 @@ def test_upsert_product_list_returns_date(db_connection, upsert_list, category):
     assert returned_date == expected_date
 
 
-def test_update_category_last_scraped_on(db_connection, category):
+def test_update_category_date_field(db_connection, category):
     """
-    test that update_category_last_scraped_on updates the last_scraped_on
+    test that update_category_date updates the last_scraped_on
     of the category in the database
     """
     date = datetime.date(2021, 5, 5)
-    update_category_last_scraped_on(db_connection, category, date)
+    update_category_date_field(db_connection, category, date, 'last_scraped_on')
     with db_connection.cursor() as cursor:
         cursor.execute("""
                        SELECT last_scraped_on
@@ -556,11 +556,12 @@ def test_update_category_last_scraped_on(db_connection, category):
     assert last_scraped_on == date
 
 
-def test_update_category_last_scraped_on_fails(db_connection, category):
+def test_update_category_date_field_fails(db_connection, category):
     """
-    test that update_category_last_scraped_on raises ValueError when we try
+    test that update_category_date_field raises ValueError when we try
     to set a date from the future
     """
     date = datetime.date(2100, 5, 5)
     with pytest.raises(ValueError):
-        update_category_last_scraped_on(db_connection, category, date)
+        update_category_date_field(db_connection, category, date,
+                                   'last_empty_on')

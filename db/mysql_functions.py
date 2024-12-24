@@ -4,7 +4,7 @@ this module creates functions for connection to MySQL database
 import datetime
 import os
 import pickle
-from typing import Optional
+from typing import Literal, Optional
 
 from dotenv import load_dotenv
 import mysql.connector
@@ -353,24 +353,27 @@ def upsert_product_list(connection: MySQLConnectionAbstract,
     return product_list.items[0].product_info.observed_on
 
 
-def update_category_last_scraped_on(
+def update_category_date_field(
         connection: MySQLConnectionAbstract,
         category: Category,
-        date: datetime.date) -> None:
+        date: datetime.date,
+        field: Literal['last_scraped_on', 'last_empty_on']
+    ) -> None:
     """
-    updates last_scraped_on of category to date
+    updates last_scraped_on or last_empty_on of category to date
     :param connection: MySQL connection
     :param category: Category
     :param date: datetime date
+    :param field: a filed to update - last_scraped_on or last_empty_on
     """
     today = get_today_date()
     date_dif = today - date
     if date_dif.days < 0:
         raise ValueError('Can\'t assign a date from the future')
     with connection.cursor() as cursor:
-        cursor.execute("""
+        cursor.execute(f"""
                        UPDATE categories
-                       SET last_scraped_on=%s
+                       SET {field}=%s
                        WHERE category_id=%s
                        """,
                        (date, category.category_id))

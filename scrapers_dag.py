@@ -7,7 +7,7 @@ from airflow.decorators import dag, task
 
 from scrapers.common import telegram_callback_on_failure
 
-for i, scraper_module in enumerate(['pyaterochka', 'lenta']):
+for i, scraper_module in enumerate(['pyaterochka', 'lenta', 'magnit']):
     @dag(
         dag_id=f'{scraper_module}_scraper',
         schedule=f'{i}/5 * * * *',
